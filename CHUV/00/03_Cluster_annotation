@@ -1,0 +1,59 @@
+# Load required libraries
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the clustered Seurat object
+soup.merge <- readRDS(file.path(postSoupX_path, "merged_clustered.rds"))
+
+# Cluster Annotation based on Differentially Expressed Genes
+# Here, we use known marker genes to manually annotate each cluster based on its expression profile.
+# This is a manual step where clusters are assigned labels.
+new.clusters.ids <- c("CD4_T",          # Label cluster 0 as CD4+ T cells
+                      "Fibro_muscle",   # Label cluster 1 as Fibroblasts or muscle cells
+                      "Myeloid cells",  # Label cluster 2 as myeloid lineage cells
+                      "CD8_T",          # Label cluster 3 as CD8+ T cells
+                      "Macrophages",    # Label cluster 4 as Macrophages
+                      "tumour_B2",      # Label cluster 5 as Tumor B2 cells
+                      "B cells",        # Label cluster 6 as B cells
+                      "Plasma cells",   # Label cluster 7 as Plasma cells
+                      "Plasma cells",   # Label cluster 8 as Plasma cells (redundant)
+                      "tumour_L4",      # Label cluster 9 as Tumor L4 cells
+                      "Endothelia",     # Label cluster 10 as Endothelial cells
+                      "Fibro_muscle",   # Label cluster 11 as Fibroblasts or muscle cells
+                      "tumour_B1",      # Label cluster 12 as Tumor B1 cells
+                      "tumour_B4",      # Label cluster 13 as Tumor B4 cells
+                      "Mast cells",     # Label cluster 14 as Mast cells
+                      "Plasma cells",   # Label cluster 15 as Plasma cells
+                      "Alveolar type 2",# Label cluster 16 as Alveolar type 2 cells
+                      "tumour_L3",      # Label cluster 17 as Tumor L3 cells
+                      "tumour_L2",      # Label cluster 18 as Tumor L2 cells
+                      "Plasma cells",   # Label cluster 19 as Plasma cells
+                      "Plasma cells",   # Label cluster 20 as Plasma cells
+                      "Plasma cells",   # Label cluster 21 as Plasma cells
+                      "DC_plasmacytoid",# Label cluster 22 as Plasmacytoid Dendritic cells
+                      "tumour_L1",      # Label cluster 23 as Tumor L1 cells
+                      "DC_activated")   # Label cluster 24 as Activated Dendritic cells
+
+# Assign names to each cluster corresponding to their levels in the Seurat object
+names(new.clusters.ids) <- levels(soup.merge)
+
+# Rename clusters based on the annotations assigned above
+soup.merge <- RenameIdents(soup.merge, new.clusters.ids)
+
+# Visualize the newly annotated clusters with labels
+DimPlot(soup.merge, label = TRUE)
+
+# Add the new cluster annotations as a metadata column for further downstream analysis
+soup.merge[["annot_l1"]] <- Idents(soup.merge)
+
+# Save the updated Seurat object with annotations
+saveRDS(soup.merge, file.path(postSoupX_path, "annotated_merged_clustered.rds"))
+
+# Generate and save additional cluster-specific plots in a new PDF
+pdf(file.path(postSoupX_path, "annotated_clusters.pdf"))
+DimPlot(soup.merge, group.by = "annot_l1", label = TRUE)
+dev.off()

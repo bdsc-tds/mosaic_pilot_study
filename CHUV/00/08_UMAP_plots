@@ -1,0 +1,224 @@
+# Load required libraries
+library(Seurat)
+library(plyr)
+library(ggplot2)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the Seurat object
+chrom <- readRDS(file.path(postSoupX_path, "annotated_merged_with_Level1_2_3_4.rds"))
+
+# Split up object based on the tissue type
+chrom@meta.data$tissue <- if_else(chrom@meta.data$patient %in% c("L1","L2","L3","L4"),
+                         "Lung",
+                        chrom@meta.data$patient)
+chrom@meta.data$tissue <- if_else(chrom@meta.data$tissue %in% c("B1","B2","B3","B4"),
+                        "Breast",
+                        chrom@meta.data$tissue)
+
+Idents(chrom) <- "tissue"
+chrom_lung <- subset(chrom, idents = "Lung")
+chrom_breast <- subset(chrom, idents = "Breast")
+
+### Colour palettes ###
+cols_tissue <- c("Lung" = "#FFA54F",
+                 "Breast" = "#00C78C")
+chrom$sample_id <- factor(chrom$tissue, 
+                          levels=names(cols_tissue))
+
+cols_sample_id <- c("B1" = "#F8766D",
+                    "B2" = "#ABA300",
+                    "B3" = "#0CB702",
+                    "B3_rep" = "#00B8E7",
+                    "B4" = "#8494FF",
+                    "B4_rep" = "#FF61CC")
+chrom_breast$sample_id <- factor(chrom_breast$sample_id, 
+                                       levels=names(cols_sample_id))                
+
+cols_sample_id_all <- c("B1" = "#F8766D",
+                        "B2" = "#ABA300",
+                        "B3" = "#0CB702",
+                        "B3_rep" = "#00B8E7",
+                        "B4" = "#8494FF",
+                        "B4_rep" = "#FF61CC",
+                        "L1" = "#ed813e",
+                        "L2" = "#00C19A",
+                        "L3" = "blue",
+                        "L4" = "#C77cff")
+chrom$sample_id <- factor(chrom$sample_id,
+                            levels=names(cols_sample_id_all))
+
+cols_l1 <- c("B" = "#EEEE00",
+             "Myeloid" = "#9A32CD",
+             "Stroma" = "#388E8E",
+             "Granulocyte" = "#FFD700", 
+             "Epithelia" = "#BC8F8F",
+             "T_NK" = "#4169E1",
+             "Tumor_Lung" = "#FFA54F",
+             "Tumor_Breast" = "#00C78C")
+chrom_lung$Level1 <- factor(chrom_lung$Level1, levels=names(cols_l1))
+chrom_breast$Level1 <- factor(chrom_breast$Level1, levels=names(cols_l1))
+
+cols_l2 <- c("B" = "#EEEE00",
+             "Myeloid" = "#9A32CD",
+             "Vessel" = "#FF7256",
+             "Fibro_muscle" = "#388E8E",
+             "Mast_cell" = "#FFD700",
+             "Granulocyte" = "#FFC125", 
+             "Epithelia" = "#BC8F8F",
+             "T_NK" = "#4169E1",
+             "Tu_B1" = "#00C78C",
+             "Tu_B3" = "#66CDAA",
+             "Tu_B4" = "#3CB371",
+             "Tu_L1" = "#EEB4B4",
+             "Tu_L2" = "#FFA54F",
+             "Tu_L3" = "#CD853F",
+             "Tu_L4" = "#8B4513")
+chrom_lung$Level2 <- factor(chrom_lung$Level2, levels=names(cols_l2))
+chrom_breast$Level2 <- factor(chrom_breast$Level2, levels=names(cols_l2))
+
+cols_l3 <- c("B_cell" = "#EEEE00",
+             "B_plasma" = "#FF00FF",
+             "DC_1" = "#C71585",
+             "DC_2" = "#FFAEB9",
+             "DC_activated" = "#CD8C95",
+             "DC_pc" = "#FF6347",
+             "Macrophage" = "#9A32CD",
+             "Monocyte" = "#AB82FF",
+             "Endothelia_vascular" = "#FF7256",
+             "Endothelia_lymphatic" = "#FFDAB9",
+             "Pericyte" = "#A0522D",
+             "Fibroblast" = "#388E8E",
+             "Fibroblast_B3" = "#008080",
+             "Muscle_smooth" = "#668B8B",
+             "Mast_cell" = "#FFD700",
+             "Granulocyte" = "#FFC125", 
+             "Epi_lung" = "#BC8F8F",
+             "NK" = "#79CDCD",
+             "TNK_dividing" = "#97FFFF",
+             "T_CD4" = "#4169E1",
+             "T_CD8_exhausted" = "#00BFFF",
+             "T_CTL" = "#009ACD",
+             "T_CXCL13" = "#3D59AB",
+             "T_reg" = "#87CEFF",
+             "Tu_B1" = "#00C78C",
+             "Tu_B3" = "#66CDAA",
+             "Tu_B4" = "#3CB371",
+             "Tu_L1" = "#EEB4B4",
+             "Tu_L2" = "#FFA54F",
+             "Tu_L3" = "#CD853F",
+             "Tu_L4" = "#8B4513")
+chrom_lung$Level3 <- factor(chrom_lung$Level3, levels=names(cols_l3))
+chrom_breast$Level3 <- factor(chrom_breast$Level3, levels=names(cols_l3))
+
+cols_l4 <- c("B_cell" = "#EEEE00",
+             "B_plasma_IGHA1" = "#FF00FF",
+             "B_plasma_IGHG1" = "#CD00CD",
+             "B_plasma_IGHG3" = "#DA70D6",
+             "B_plasma_IGHM" = "#FF83FA",
+             "B_plasma_IGKC" = "#8B4789",
+             "B_plasma_IGLC1" = "#B452CD",
+             "DC_1" = "#C71585",
+             "DC_2" = "#FFAEB9",
+             "DC_activated" = "#CD8C95",
+             "DC_pc" = "#FF6347",
+             "Macrophage" = "#9A32CD",
+             "Monocyte" = "#AB82FF",
+             "Endothelia_vascular" = "#FF7256",
+             "Endothelia_lymphatic" = "#FFDAB9",
+             "Pericyte" = "#A0522D",
+             "Fibroblast" = "#388E8E",
+             "Fibroblast_B3" = "#008080",
+             "Muscle_smooth" = "#668B8B",
+             "Mast_cell" = "#FFD700",
+             "Granulocyte" = "#FFC125", 
+             "Epi_lung" = "#BC8F8F",
+             "NK" = "#79CDCD",
+             "TNK_dividing" = "#97FFFF",
+             "T_CD4" = "#4169E1",
+             "T_CD8_exhausted" = "#00BFFF",
+             "T_CTL" = "#009ACD",
+             "T_CXCL13" = "#3D59AB",
+             "T_reg" = "#87CEFF",
+             "Tu_B1_MUCL1" = "#00C78C",
+             "Tu_B1_MUCL1_necrosis" = "#7FFFD4",
+             "Tu_B1_MUCL1_transcription" = "#00FA9A",
+             "Tu_B3_CYP4F8" = "#66CDAA",
+             "Tu_B4_RHOB" = "#3CB371",
+             "Tu_L1_SFTPB" = "#EEB4B4",
+             "Tu_L2_FXYD2" = "#FFA54F",
+             "Tu_L3_G0S2_immune_signature" = "#CD853F",
+             "Tu_L3_G0S2" = "#CDAF95",
+             "Tu_L4_KRT17_immune_signature" = "#8B4513",
+             "Tu_L4_KRT17_mucous" = "#CD661D",
+             "Tu_L4_KRT17_necrosis" = "#F4A460",
+             "Tu_L4_KRT17_neutrophil_signature" = "#8B2500")
+chrom_lung$Harmonised_Level4 <- factor(chrom_lung$Harmonised_Level4, 
+                                       levels=names(cols_l4))
+chrom_breast$Harmonised_Level4 <- factor(chrom_breast$Harmonised_Level4, 
+                                         levels=names(cols_l4))
+###
+
+### UMAP coloured by tissue ###
+DimPlot(chrom,
+        group.by = "tissue",
+        cols = cols_tissue)
+###
+
+### UMAP coloured by sample_id ###
+DimPlot(chrom,
+        group.by = "sample_id",
+        pt.size = 0.7,
+        cols = cols_sample_id_all)
+###
+
+DimPlot(chrom_breast,
+        group.by = "sample_id",
+        pt.size = 0.7,
+        cols= cols_sample_id)
+
+### UMAPs by annotation level ###
+
+# Level1
+DimPlot(chrom_lung,
+        group.by = "Level1",
+        cols = cols_l1,
+        label = T,
+        repel = T)
+
+DimPlot(chrom_breast,
+        group.by = "Level1",
+        cols = cols_l1,
+        label = T)
+
+# Level2
+DimPlot(chrom,
+        group.by = "Level2",
+        cols = cols_l2,
+        label = T,
+        repel = T)
+
+DimPlot(chrom,
+        group.by = "Level1",
+        cols = cols_l1,
+        label = T,
+        repel = T)
+
+# Level3
+DimPlot(chrom,
+        group.by = "Level3",
+        cols = cols_l3,
+        label = T,
+        repel = T)
+
+DimPlot(chrom,
+        group.by = "Harmonised_Level4",
+        cols = cols_l4,
+        repel = T,
+        label = T)
+###
+
+
+
+

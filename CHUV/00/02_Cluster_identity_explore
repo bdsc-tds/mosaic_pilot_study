@@ -1,0 +1,109 @@
+# Load required libraries
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the clustered Seurat object
+soup.merge <- readRDS(file.path(postSoupX_path, "merged_clustered.rds"))
+
+# Prepare for marker identification
+soup.merge <- PrepSCTFindMarkers(soup.merge)
+
+# Find all markers and select top 10 per cluster
+soup.merge.markers <- FindAllMarkers(soup.merge, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = TRUE)
+top10 <- soup.merge.markers %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_log2FC)
+
+# Save marker genes to CSV
+write.csv(top10, file.path(postSoupX_path, "marker_genes.csv"), row.names = FALSE)
+
+# Generate and save plots in a PDF for marker visualization
+pdf(file.path(postSoupX_path, "merged_postSoupX.pdf"))
+for (feat in c("percent_mt", "percent_ribo", "percent_hb", "nFeature_RNA", "nCount_RNA")) {
+  print(VlnPlot(soup.merge, group.by = "sample_id", features = feat) + NoLegend())
+  print(VlnPlot(soup.merge, group.by = "seurat_clusters", features = feat) + NoLegend())
+}
+print(FeatureScatter(soup.merge, feature1 = "nCount_RNA", feature2 = "percent_mt", group.by = "sample_id"))
+print(FeatureScatter(soup.merge, feature1 = "nCount_RNA", feature2 = "nFeature_RNA", group.by = "sample_id"))
+print(DimPlot(soup.merge, label = TRUE))
+print(DimPlot(soup.merge, group.by = "sample_id"))
+print(FeaturePlot(soup.merge, features = c("nFeature_RNA", "nCount_RNA", "percent_mt")))
+for (g in markers) {
+  print(FeaturePlot(soup.merge, g))
+}
+dev.off()
+
+# Generate and save additional cluster-specific plots in a new PDF
+pdf(file.path(postSoupX_path, "clusters.pdf"))
+DimPlot(soup.merge, group.by = "seurat_clusters", label = TRUE)
+
+# Cluster specific feature plots
+FeaturePlot(soup.merge, c("CD3E", "CD4", "FOXP3"), label = TRUE)
+FeaturePlot(soup.merge, c("ACTA2", "TAGLN", "VCAN", "PDGFRA"), label = TRUE)
+FeaturePlot(soup.merge, c("CST3", "CD68", "CD14", "LYZ"), label = TRUE)
+FeaturePlot(soup.merge, c("CD3E", "CD8A", "GZMA"), label = TRUE)
+FeaturePlot(soup.merge, c("MARCO", "APOE"), label = TRUE)
+
+# Highlight tumour B2
+Idents(soup.merge) <- "sample_id"
+cell_names <- Cells(subset(soup.merge, idents = "B2"))
+Idents(soup.merge) <- "seurat_clusters"
+DimPlot(soup.merge, cells.highlight = cell_names, cols.highlight = "red", cols = "grey", label = TRUE)
+FeaturePlot(soup.merge, c("EPCAM"), label = TRUE)
+
+# More cluster-specific feature plots
+FeaturePlot(soup.merge, c("MS4A1", "BANK1", "TNFRSF13B"), label = TRUE)
+FeaturePlot(soup.merge, c("JCHAIN", "IGHG1", "MZB1"), label = TRUE)
+FeaturePlot(soup.merge, c("JCHAIN", "IGHG1", "IGKC"), label = TRUE)
+FeaturePlot(soup.merge, c("KRT17", "GSTP1"), label = TRUE)
+FeaturePlot(soup.merge, c("PECAM1", "VWF"), label = TRUE)
+FeaturePlot(soup.merge, c("COL4A1", "CCN2", "IGFBP7", "CALD1"), label = TRUE)
+
+# Highlight tumour B1
+Idents(soup.merge) <- "sample_id"
+cell_names <- Cells(subset(soup.merge, idents = "B1"))
+Idents(soup.merge) <- "seurat_clusters"
+DimPlot(soup.merge, cells.highlight = cell_names, cols.highlight = "red", cols = "grey", label = TRUE)
+FeaturePlot(soup.merge, c("EPCAM", "FASN", "APOD"), label = TRUE)
+
+# Highlight tumour B4
+Idents(soup.merge) <- "sample_id"
+cell_names <- Cells(subset(soup.merge, idents = "B4"))
+Idents(soup.merge) <- "seurat_clusters"
+DimPlot(soup.merge, cells.highlight = cell_names, cols.highlight = "red", cols = "grey", label = TRUE)
+FeaturePlot(soup.merge, c("EPCAM", "EGR1", "FOS"), label = TRUE)
+
+# Continue feature plots for other clusters
+FeaturePlot(soup.merge, c("CPA3", "MS4A2"), label = TRUE)
+FeaturePlot(soup.merge, c("SFTPB", "SFTPA1", "SLC34A2"), label = TRUE)
+
+# Highlight tumour L3
+Idents(soup.merge) <- "sample_id"
+cell_names <- Cells(subset(soup.merge, idents = "L3"))
+Idents(soup.merge) <- "seurat_clusters"
+DimPlot(soup.merge, cells.highlight = cell_names, cols.highlight = "red", cols = "grey", label = TRUE)
+FeaturePlot(soup.merge, c("MUC1", "CD24"), label = TRUE)
+
+# Continue feature plots
+FeaturePlot(soup.merge, c("HMGA2", "ITGA3"), label = TRUE)
+FeaturePlot(soup.merge, c("JCHAIN", "IGHA1"), label = TRUE)
+FeaturePlot(soup.merge, c("JCHAIN", "IGHG3"), label = TRUE)
+FeaturePlot(soup.merge, c("CLEC4C", "PLD4"), label = TRUE)
+
+# Highlight tumour L1
+Idents(soup.merge) <- "sample_id"
+cell_names <- Cells(subset(soup.merge, idents = "L1"))
+Idents(soup.merge) <- "seurat_clusters"
+DimPlot(soup.merge, cells.highlight = cell_names, cols.highlight = "red", cols = "grey", label = TRUE)
+FeaturePlot(soup.merge, c("F3", "MUC1"), label = TRUE)
+
+# Continue feature plots
+FeaturePlot(soup.merge, c("CSF2RA", "FSCN1", "BIRC3", "CCR7", "TRAF1"), label = TRUE)
+
+# Print top markers
+print(top10)
+dev.off()

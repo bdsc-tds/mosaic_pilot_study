@@ -1,0 +1,101 @@
+# Load required libraries
+library(Seurat)
+library(SoupX)
+library(tidyverse)
+
+# Set common base paths
+base_path <- "/data/PRTNR/CHUV/DIR/rgottar1/owkin_pilot"
+lung_path <- file.path(base_path, "mosaic_pilot/lung")
+breast_path <- file.path(base_path, "mosaic_pilot/breast")
+mosaic_pilot_2_path <- file.path(base_path, "mosaic_pilot_2/chromium/723_DLBCL_3_6_Breast_3_4/outs/per_sample_outs")
+
+# Define sample paths using the common base paths
+lung_samples <- list(
+  L1 = file.path(lung_path, "0PSV/chromium/L1_OPSV/count"),
+  L2 = file.path(lung_path, "0WMU/chromium/L2_OWMU/count"),
+  L3 = file.path(lung_path, "1G73/chromium/L3_1G73/count"),
+  L4 = file.path(lung_path, "1GA2/chromium/L4_1GA2/count")
+)
+
+breast_samples <- list(
+  B1 = file.path(breast_path, "OPHI/chromium/B1_2_OPHI/count"),
+  B2 = file.path(breast_path, "1256/chromium/B2_1256/count"),
+  B3 = file.path(breast_path, "1GVR/chromium/B3_1GVR/count"),
+  B4 = file.path(breast_path, "1FHZ/chromium/B4_1FHZ/count")
+)
+
+rep_samples <- list(
+  B3_rep = file.path(mosaic_pilot_2_path, "B_3/count"),
+  B4_rep = file.path(mosaic_pilot_2_path, "B_4/count")
+)
+
+# Combine all samples
+samples <- c(lung_samples, breast_samples, rep_samples)
+
+# Define markers
+markers <- c(
+  "PTPRC", "LYZ", "CD14", "APOE", "MARCO", # Immune/monocyte/macrophage
+  "IL3RA", "CLEC4C", "CLEC9A", "XCR1", "CD1C", # Plasmacytoid DC / cDC1 / cDC2
+  "CD19", "CD79A", "MS4A1", "JCHAIN", # B-cells and plasma cells
+  "MKI67", "CDK1", # Dividing cells
+  "CD3E", "CD4", "CD8A", # T-cells
+  "GZMB", "PRF1", # Cytotoxic T (CTL)
+  "FOXP3", "IL2RA", # Treg
+  "NCR1", "NCAM1", "CD160", # NK cells
+  "CPA3", # Mast cell
+  "AGER", "SFTPC", "EPCAM", # Alveolar cells
+  "PECAM1", "VWF", "CCL21", # Endothelial and vascular vs lymphatic
+  "PDGFRA", "VCAN", # Fibroblast
+  "ACTA2", "TAGLN" # Muscle cells
+)
+
+# Loop through each sample and process
+for (i in names(samples)) {
+  sample_path <- samples[[i]]
+  
+  # Load data and create Seurat object
+  se_data <- Seurat::Read10X(file.path(sample_path, "sample_filtered_feature_bc_matrix"))
+  se_obj <- CreateSeuratObject(counts = se_data, project = i)
+  se_obj[["sample_id"]] <- i
+  
+  # Perform SCTransform, PCA, UMAP, Neighbors, Clustering
+  se_obj <- SCTransform(se_obj, verbose = FALSE) %>%
+    RunPCA(npcs = 50, verbose = FALSE) %>%
+    RunUMAP(reduction = "pca", dims = 1:50, verbose = FALSE) %>%
+    FindNeighbors(reduction = "pca", dims = 1:50, verbose = FALSE) %>%
+    FindClusters()
+  
+  # Load raw and filtered data
+  tod <- Seurat::Read10X(file.path(sample_path, "sample_raw_feature_bc_matrix"))
+  toc <- Seurat::Read10X(file.path(sample_path, "sample_filtered_feature_bc_matrix"))
+  
+  # Align data matrices
+  tod <- tod[rownames(toc), ]
+  tod <- tod[order(rownames(tod)), ]
+  toc <- toc[order(rownames(toc)), ]
+  
+  # Create SoupChannel object and estimate contamination
+  sc <- SoupChannel(tod, toc, keepDroplets = TRUE)
+  sc$tod <- tod
+  sc <- estimateSoup(sc)
+  
+  # Prepare metadata and set clusters and dimensionality reduction (UMAP)
+  sc_meta <- merge(
+    se_obj@meta.data[, c("sample_id", "seurat_clusters")],
+    se_obj@reductions$umap@cell.embeddings, 
+    by = "row.names"
+  )
+  rownames(sc_meta) <- sc_meta$Row.names
+  colnames(sc_meta) <- gsub("UMAP_", "UMAP.", colnames(sc_meta))
+  
+  sc <- setClusters(sc, setNames(sc_meta$seurat_clusters, rownames(sc_meta)))
+  sc <- setDR(sc, sc_meta[colnames(sc$toc), c('UMAP.1', 'UMAP.2')])
+  
+  # Adjust counts based on SoupX
+  sc <- autoEstCont(sc)
+  adjusted_counts <- adjustCounts(sc)
+  
+  # Save the post-SoupX Seurat object
+  srat <- CreateSeuratObject(adjusted_counts)
+  saveRDS(srat, file = paste0("/users/dbuszta/owkin_manuscript/results/", i, "-postSoupX.rds"))
+}

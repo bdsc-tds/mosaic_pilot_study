@@ -1,0 +1,110 @@
+# Load required libraries
+library(Seurat)
+library(plyr)
+library(ggplot2)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the Seurat object if not already loaded
+soup.merge <- readRDS(file.path(postSoupX_path, "annotated_merged_with_Level1_2_3.rds"))
+
+# breast
+Idents(soup.merge) <- "sample_id"
+only_b3 <- subset(soup.merge, ident = c("B3","B3_rep"))
+DimPlot(only_b3, group.by = "Level3")
+
+only_b3 = RunPCA(only_b3, assay = "SCT", npcs = 50)
+ElbowPlot(only_b3, ndims=50)
+
+only_b3 = RunUMAP(only_b3, assay = "SCT", reduction = "pca", dims = 1:50)
+only_b3 = FindNeighbors(only_b3, dims = 1:50) %>% FindClusters()
+
+DimPlot(only_b3,
+        label = T,
+        group.by = "Harmonised_Level4"
+)
+
+
+Idents(soup.merge) <- "Level3"
+tu_b3 <- subset(soup.merge, ident = "Tu_B3")
+dim(tu_b3)
+
+
+tu_b3 = RunPCA(tu_b3, assay = "SCT", npcs = 50)
+ElbowPlot(tu_b3, ndims=50)
+
+tu_b3 = RunUMAP(tu_b3, assay = "SCT", reduction = "pca", dims = 1:50)
+tu_b3 = FindNeighbors(tu_b3, dims = 1:50) %>% FindClusters(resolution = 0.4)
+
+DimPlot(tu_b3,
+        label = T
+)
+
+de_genes <- FindMarkers(only_b3, ident.1 =5, ident.2 = c(1,2,3,4), only.pos = T)
+de_genes <- de_genes[order(de_genes$pct.1, decreasing = T),]
+de_genes <- de_genes %>% filter(avg_log2FC > 1)
+de_genes <- de_genes %>% filter(pct.1 > 0.5)
+de_genes
+
+de_genes %>%
+  slice_head(n = 10) -> top10 
+
+DoHeatmap(only_b3, 
+          features =  c("NPPC","GSTP1")) + NoLegend()
+
+# cl1: "MUCL1", "CLDN3", "SCD", "PLA2G2A"
+# cl2: "MCL1"
+# cl3 : "PIP"     "CLU"     "MGP"     "CYP4F8"  "FABP7"   "KLK2"    "SLC26A3" "SLPI"    "CALML5"  "APMAP"  
+# cl4 : "KLK2"
+# cl5 : "MT-CO2"  "MT-CO3"  "MT-ATP6" "MT-CYB"  "MT-ND4"  "MT-ND4L" "MT-ND2"
+
+FeaturePlot(only_b3,
+            c("MUCL1", "CLDN3", "SCD", "PLA2G2A","ADRA2A"),
+            label = T)
+FeaturePlot(only_b3,
+            c("MCL1"),
+            label = T)
+FeaturePlot(only_b3,
+            c("PIP","CLU","MGP", "CYP4F8","FABP7","KLK2","SLC26A3","SLPI","CALML5", "APMAP"),
+            label = T)
+FeaturePlot(only_b3,
+            c("KLK2"),
+            label = T)
+FeaturePlot(only_b3,
+            c("MT-CO2",  "MT-CO3",  "MT-ATP6", "MT-CYB" , "MT-ND4",  "MT-ND4L" ,"MT-ND2"),
+            label = T)
+DimPlot(only_b3, group.by = "seurat_clusters", label = T)
+
+tumour_cells_b3 <- subset(only_b3, idents = c("1","2","3","4","5"))
+tumour_cells_b3$Harmonised_Level4_DB <- tumour_cells_b3$seurat_clusters
+tumour_cells_b3$Harmonised_Level4_DB <- ifelse(tumour_cells_b3$Harmonised_Level4_DB %in% c("2","4"),
+                                                "Tu_B3",  tumour_cells_b3$seurat_clusters)
+tumour_cells_b3$Harmonised_Level4_DB <- ifelse(tumour_cells_b3$seurat_clusters %in% "1",
+                                                "Tu_B3_PLA2G2A",tumour_cells_b3$Harmonised_Level4_DB)
+tumour_cells_b3$Harmonised_Level4_DB <- ifelse(tumour_cells_b3$seurat_clusters %in% "3",
+                                                "Tu_B3_NPPC",tumour_cells_b3$Harmonised_Level4_DB)
+tumour_cells_b3$Harmonised_Level4_DB <- ifelse(tumour_cells_b3$seurat_clusters %in% "5",
+                                                "Tu_B3_necrosis",tumour_cells_b3$Harmonised_Level4_DB)
+table(tumour_cells_b3$Harmonised_Level4_DB)
+
+Idents(tumour_cells_b3) <- "Harmonised_Level4_DB"
+
+DimPlot(tumour_cells_b3,
+        cols = c("grey","#ffa503", "grey","#000b7f"),
+        pt.size = 1.5)+NoAxes()+NoLegend()
+
+FeaturePlot(tumour_cells_b3, "NPPC", pt.size = 1.5, max.cutoff = 2)+NoAxes()
+
+soup.merge$Harmonised_Level4_DB <- soup.merge$Harmonised_Level4
+for (i in colnames(tumour_cells_b3)) {
+  if (i %in% rownames(soup.merge@meta.data)) {
+    soup.merge@meta.data[i,"Harmonised_Level4_DB"] <- tumour_cells_b3@meta.data[i,"Harmonised_Level4_DB"]
+  }
+}
+soup.merge$Harmonised_Level4_DB <- ifelse(soup.merge$Harmonised_Level4_DB == "Tu_B3_CYP4F8",
+                                            "Tu_B3", soup.merge$Harmonised_Level4_DB)
+
+DimPlot(soup.merge, label=T, group.by = "Harmonised_Level4_DB")
+saveRDS(soup.merge, file.path(postSoupX_path, "annotated_merged_with_Level1_2_3_4.rds"))
+
