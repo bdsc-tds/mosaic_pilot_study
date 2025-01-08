@@ -40,7 +40,6 @@ for(i in 1:length(files_to_read)){
   print(dim(decon_i))
 
   decon_patho_long_i <- pivot_longer(decon_i, names_to = "CellType", values_to = "Fraction", -c("Barcode"))
-  # decon_patho_long_i$Section <- gsub("_spot_Level4_decon.csv", "", files_to_read[i]) # CARD
   decon_patho_long_i$Section <- gsub(".csv", "", files_to_read[i]) # C2L
   
   decon_all <- rbind(decon_all, decon_patho_long_i)
@@ -76,45 +75,12 @@ plotHeatmap <- function(decon_patho_long_all, disease = "breast"){
   
   ## Per cell type sum to 1?
   stats_ <- stats %>%
-    group_by(Region) %>%
-    mutate(countT= sum(mean_value)) %>%
-    mutate(per=round(100*mean_value/countT,0))
-  
-  ## Per cell type sum to 1?
-  stats_ <- stats %>%
     group_by(CellType) %>%
     mutate(countT= sum(mean_value)) %>%
     mutate(per=round(100*mean_value/countT,0))
   
-  
-  # ## Per cell type sum to 1 - Not possible, cause we don't have "B cells" spot labeled 
-  # stats <- decon_patho_long_all %>%
-  #   filter(Section %in% sample_list) %>%
-  #   group_by(CellType, Region) %>%
-  #   summarize(mean_value = mean(Fraction), .groups = CellType) %>%
-  #   mutate(per = round(100 * mean_value, 0))
-  
-  # stats$Region <- factor(stats$Region, levels = rev(levels(factor(stats$Region)))) # orientation 1
-  # stats$CellType <- factor(stats$CellType, levels = rev(levels(factor(stats$CellType))))
   stats_$CellType <- factor(stats_$CellType, levels = rev(levels(factor(stats_$CellType))))
   
-  # # Create the heatmap Region per decon                                            # orientation 1
-  # p <- ggplot(stats, aes(x = CellType, y = Region, fill = per)) + 
-  #   geom_tile() + 
-  #   geom_text(aes(x = CellType, y = Region, label = paste0(per, "%"))) +
-  #   scale_x_discrete(position = "bottom") +
-  #   scale_y_discrete(position = "left") +
-  #   scale_fill_viridis_c(option = "mako") + 
-  #   theme_minimal() +
-  #   theme(legend.position = "bottom",
-  #         axis.text.x = element_text(angle = 90, size = 8, hjust = 1, vjust = 0.5)
-  #   ) + 
-  #   labs(fill = paste0("Per-region average deconvolution fraction"), title = "", y = "Region") + 
-  #   guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5, 
-  #                                barwidth = unit(10, "cm"), barheight = unit(0.3, "cm")))
-  
-  # Create the heatmap Region per decon
-  # p <- ggplot(stats, aes(x = Region, y = CellType, fill = per)) + 
   p <- ggplot(stats_, aes(x = Region, y = CellType, fill = per)) + 
     geom_tile() + 
     geom_text(aes(x = Region, y = CellType, label = paste0(per, "%"))) +
@@ -126,8 +92,6 @@ plotHeatmap <- function(decon_patho_long_all, disease = "breast"){
           axis.text.y = element_text(size = 11),
           axis.text.x = element_text(angle = 45, size = 11, hjust = 0, vjust = 1)
     ) + 
-    # labs(fill = paste0("Average deconvolution fraction per-region"), title = "", y = "") + 
-    # labs(fill = paste0("Average cell type deconvolution fraction per-region"), title = "", y = "") + 
     labs(fill = paste0("Average deconvolution fraction per-region per-cell-type"), title = "", y = "") + 
     guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5, 
                                  barwidth = unit(5, "cm"), barheight = unit(0.3, "cm")))
@@ -154,54 +118,6 @@ p_final <- ((p_breast_patho_decon + theme(axis.title.x = element_blank())) |
 
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Visium_Gallery_Patho_Decon_Pt_Heatmap"
 
-# pdf(file.path(figpath, "Vis_Patho_Decon_Heatmap_final_fraction_percelltype_final.pdf"), width = 20, height = 14)
 pdf(file.path(figpath, "Vis_Patho_Decon_Heatmap_final_fraction_percelltype_final_C2L.pdf"), width = 20, height = 14)
 print(p_final)
 dev.off()
-
-
-# # Try every donor ---------------------------------------------------------
-# plotHeatmap_each_pt <- function(pt){ 
-#   ## Per region sum to 1
-#   stats <- decon_patho_long_all %>%
-#     filter(Section %in% pt) %>%
-#     group_by(Region, CellType) %>%
-#     summarize(mean_value = mean(Fraction)) %>%
-#     mutate(per = round(100 * mean_value, 0))
-#   stats$CellType <- factor(stats$CellType, levels = rev(levels(factor(stats$CellType))))
-#   
-#   # Create the heatmap Region per decon
-#   p <- ggplot(stats, aes(x = Region, y = CellType, fill = per)) + 
-#     geom_tile() + 
-#     geom_text(aes(x = Region, y = CellType, label = paste0(per, "%"))) +
-#     scale_x_discrete(position = "top") +
-#     scale_y_discrete(position = "left") +
-#     scale_fill_viridis_c(option = "mako") + 
-#     theme_minimal() +
-#     theme(legend.position = "bottom",
-#           axis.text.y = element_text(size = 11),
-#           axis.text.x = element_text(angle = 45, size = 11, hjust = 0, vjust = 1)
-#     ) + 
-#     # labs(fill = paste0("Average deconvolution fraction per-region"), title = "", y = "") + 
-#     labs(fill = paste0("Average cell type deconvolution fraction per-region"), title = "", y = "") + 
-#     guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5, 
-#                                  barwidth = unit(5, "cm"), barheight = unit(0.3, "cm")))
-#   
-#   assign(paste0("p_", pt), p)
-#   
-# }
-# 
-# if(disease == "breast"){
-#   sample_list = c("B1_2", "B1_4", "B2_2", "B3_2", "B4_2")
-# }else if(disease == "lung"){
-#   sample_list = c("L1_2", "L1_4", "L2_2", "L3_2", "L4_2")
-# }else{ # dlbcl
-#   sample_list = c("DLBCL_1", "DLBCL_2", "DLBCL_3", "DLBCL_4", "DLBCL_5", "DLBCL_6")
-# }
-# 
-# lapply(c("B1_2", "B1_4", "B2_2", "B3_2", "B4_2"), plotHeatmap_each_pt)
-# plotHeatmap_each_pt(decon_patho_long_all, disease = "lung")
-# plotHeatmap_each_pt(decon_patho_long_all, disease = "dlbcl")
-# 
-# 
-# 

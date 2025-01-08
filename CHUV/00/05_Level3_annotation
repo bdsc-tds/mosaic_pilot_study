@@ -1,0 +1,304 @@
+# Load required libraries
+library(Seurat)
+library(plyr)
+library(ggplot2)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the Seurat object if not already loaded
+soup.merge <- readRDS(file.path(postSoupX_path, "annotated_merged_with_Level1_2.rds"))
+Idents(soup.merge) <- "seurat_clusters"
+
+ # Define the new Level2 grouping based on the annotations
+level3_labels <-    c("T_NK",           # Label cluster 0 as CD4+ T cells
+                      "Fibro_Muscle",   # Label cluster 1 as Fibroblasts or muscle cells
+                      "Myeloid",        # Label cluster 2 as myeloid lineage cells
+                      "T_NK",           # Label cluster 3 as CD8+ T cells
+                      "Myeloid",        # Label cluster 4 as Macrophages
+                      "Tu_B2",          # Label cluster 5 as Tumor B2 cells
+                      "B_cell",         # Label cluster 6 as B cells
+                      "B_plasma",       # Label cluster 7 as Plasma cells
+                      "B_plasma",       # Label cluster 8 as Plasma cells
+                      "Tu_L4",          # Label cluster 9 as Tumor L4 cells
+                      "Vessel",         # Label cluster 10 as Endothelial cells
+                      "Stroma",         # Label cluster 11 as Fibroblasts or muscle cells
+                      "Tu_B1",          # Label cluster 12 as Tumor B1 cells
+                      "Tu_B4",          # Label cluster 13 as Tumor B4 cells
+                      "Mast_cell",      # Label cluster 14 as Mast cells
+                      "B_plasma",       # Label cluster 15 as Plasma cells
+                      "Stroma",         # Label cluster 16 as Alveolar type 2 cells
+                      "Tu_L3",          # Label cluster 17 as Tumor L3 cells
+                      "Tu_L2",          # Label cluster 18 as Tumor L2 cells
+                      "B_plasma",       # Label cluster 19 as Plasma cells
+                      "B_plasma",       # Label cluster 20 as Plasma cells
+                      "B_plasma",       # Label cluster 21 as Plasma cells
+                      "Myeloid",        # Label cluster 22 as Plasmacytoid Dendritic cells
+                      "Tu_L1",          # Label cluster 23 as Tumor L1 cells
+                      "Myeloid")        # Label cluster 24 as Activated Dendritic cells
+
+# Assign the Level1 labels based on the cluster identities
+names(level3_labels) <- levels(soup.merge)
+soup.merge <- RenameIdents(soup.merge, level3_labels)
+# Add annotation as a new column in meta.data
+soup.merge[["Level3"]] <- Idents(soup.merge)
+
+Idents(soup.merge) <- "Level3"
+
+# Add granularity to T cells
+t_cell_cluster <- subset(soup.merge, idents = c("T_NK"))
+unique(t_cell_cluster@meta.data$annot_l1)
+
+t_cell_cluster = RunPCA(t_cell_cluster, assay = "SCT", npcs = 50)
+t_cell_cluster = RunUMAP(t_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(t_cell_cluster, ndims=50)
+t_cell_cluster = FindNeighbors(t_cell_cluster, dims = 1:6) %>% FindClusters(resolution = 0.175)
+
+DimPlot(t_cell_cluster,
+        group.by = "SCT_snn_res.0.15",
+        label = T
+        )
+
+DimPlot(t_cell_cluster,
+        group.by = "sample_id",
+        label = T
+        )
+
+t_cell_cluster = PrepSCTFindMarkers(t_cell_cluster)
+t.cell.markers = FindAllMarkers(t_cell_cluster,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = T)
+t.cell.markers %>%
+    group_by(cluster) %>%
+    top_n(n = 10, wt = avg_log2FC) -> top10
+
+
+#0 - T_regs
+FeaturePlot(t_cell_cluster, c("FOXP3", "CTLA4", "IL2RA"), label = T)
+#1 - CTL
+FeaturePlot(t_cell_cluster, c("GZMK", "GZMA","KLRG1","EOMES","CD8A"), label = T)
+#2 - T_CD4
+FeaturePlot(t_cell_cluster, c("IL7R","CD4","CCR7","LEF1","CCR4","CD40LG"), label = T)
+#3 - T_CD8_exhausted
+FeaturePlot(t_cell_cluster, c("PDCD1","LAG3","TIGIT","HAVCR2","SARDH","GZMB"), label = T)
+#4 - T_CXCL13
+FeaturePlot(t_cell_cluster, c("CXCL13"), label = T)
+#5 -NK cells  
+FeaturePlot(t_cell_cluster, c("GNLY","NKG7","NCR1","KLRF1"), label = T)
+#6 - Proliferating
+FeaturePlot(t_cell_cluster, c("MKI67","TOP2A"), label = T)
+
+new.t.cluster.ids <- c("T_reg",
+                       "T_CTL",
+                       "T_CD4",
+                       "T_CD8_exhausted",
+                       "T_CXCL13",
+                       "NK",
+                       "TNK_dividing")
+
+names(new.t.cluster.ids) <- levels(t_cell_cluster)
+t_cell_cluster <- RenameIdents(t_cell_cluster, new.t.cluster.ids)
+DimPlot(t_cell_cluster, label=T)
+t_cell_cluster[["annot_t"]] <- Idents(t_cell_cluster)
+
+soup.merge[["Level3"]] <- as.character(soup.merge@meta.data$Level2)
+for (i in colnames(t_cell_cluster)) {
+  if (i %in% rownames(soup.merge[["Level3"]])) {
+    soup.merge@meta.data[i,"Level3"] <- as.character(t_cell_cluster@meta.data[i,"annot_t"])
+  }
+}
+soup.merge@meta.data$Level3 <- as.factor(soup.merge@meta.data$Level3)
+
+
+# Add granularity to myeloid cells
+myeloid_cell_cluster <- subset(soup.merge, idents = c("Myeloid"))
+
+myeloid_cell_cluster = RunPCA(myeloid_cell_cluster, assay = "SCT", npcs = 50)
+myeloid_cell_cluster = RunUMAP(myeloid_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(myeloid_cell_cluster, ndims=50)
+myeloid_cell_cluster = FindNeighbors(myeloid_cell_cluster, dims = 1:10) %>% FindClusters(resolution = 0.3)
+
+DimPlot(myeloid_cell_cluster,
+        group.by = "seurat_clusters",
+        label = T
+)
+DimPlot(myeloid_cell_cluster,
+        group.by = "sample_id",
+        label = T
+)
+
+myeloid_cell_cluster = PrepSCTFindMarkers(myeloid_cell_cluster)
+myeloid.cell.markers = FindAllMarkers(myeloid_cell_cluster,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = T)
+myeloid.cell.markers %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_log2FC) -> top10
+
+
+#0 - Monocyte
+FeaturePlot(myeloid_cell_cluster, c('CD300E', 'S100A12', 'EREG', 'CD14', 
+                                    'FCGR3A', 'LILRB2', 'LILRB1', 'MTSS1', 'FAM110A', 
+                                    'LRRC25', 'CDKN1C', 'ABI3',"CD68"), label = T)
+#1 - DC_2
+FeaturePlot(myeloid_cell_cluster, c('CD1C',  'CLEC10A', 'FCER1A',"CD86", 
+                                    "FCER1G", "C1orf162", "CLEC7A", "HLA-DRB1", 
+                                    "FCGR2B", "SIRPA", "HLA-DRA"), label = T)
+#2 - Macrophage
+FeaturePlot(myeloid_cell_cluster, c('C1QA', 'C1QB', 'C1QC', 'APOE', 'APOC1'), label = T)
+#3 - Monocyte
+FeaturePlot(myeloid_cell_cluster, c(), label = T)
+#4 - Macrophage
+FeaturePlot(myeloid_cell_cluster, c('SPP1', 'PLA2G7',  'FOLR2', 'SLC1A3', 'CHIT1', 'PADI1','A2M',  'HTRA1'), label = T)
+#5 - Macrophage
+FeaturePlot(myeloid_cell_cluster, c('C1QA', 'C1QB', 'C1QC', 'APOE', 'APOC1',"MARCO"), label = T)
+#6 - plasmacytoid DCs
+FeaturePlot(myeloid_cell_cluster, c('CLEC4C',  'PLD4', 'JCHAIN'), label = T)
+#7 - activated DCs 
+FeaturePlot(myeloid_cell_cluster, c('CCR7', 'BIRC3', 'RASSF4', 'TRAF1', 'EBI3'), label = T)
+#8 - DC_1
+FeaturePlot(myeloid_cell_cluster, c('CLEC9A', 'XCR1', 'C1orf54', 'WDFY4', 'LGALS2', 'DNASE1L3'), label = T)
+
+new.myeloid.cluster.ids <- c("Monocyte",
+                             "DC_2",
+                             "Macrophage",
+                             "Monocyte",
+                             "Macrophage"
+                             "Macrophage",
+                             "DC_pc",
+                             "DC_activated",
+                             "DC_1")
+
+names(new.myeloid.cluster.ids) <- levels(myeloid_cell_cluster)
+myeloid_cell_cluster <- RenameIdents(myeloid_cell_cluster, new.myeloid.cluster.ids)
+DimPlot(myeloid_cell_cluster, label=T)
+myeloid_cell_cluster[["annot_m"]] <- Idents(myeloid_cell_cluster)
+
+soup.merge[["Level3"]] <- as.character(soup.merge@meta.data$Level3)
+for (i in colnames(myeloid_cell_cluster)) {
+  if (i %in% rownames(soup.merge[["Level3"]])) {
+    soup.merge@meta.data[i,"Level3"] <- as.character(myeloid_cell_cluster@meta.data[i,"annot_m"])
+  }
+}
+soup.merge@meta.data$Level3 <- as.factor(soup.merge@meta.data$Level3)
+
+
+# Add granularity to stroma cells
+stroma_cell_cluster <- subset(soup.merge, idents = c("Fibro_muscle","Epithelia","Vessel"))
+
+stroma_cell_cluster = RunPCA(stroma_cell_cluster, assay = "SCT", npcs = 50)
+stroma_cell_cluster = RunUMAP(stroma_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(stroma_cell_cluster, ndims=50)
+stroma_cell_cluster = FindNeighbors(stroma_cell_cluster, dims = 1:10) %>% FindClusters(resolution = 0.2)
+
+DimPlot(stroma_cell_cluster,
+        group.by = "seurat_clusters",
+        label = T
+)
+
+DimPlot(stroma_cell_cluster,
+        group.by = "sample_id",
+        label = T
+)
+
+stroma_cell_cluster = PrepSCTFindMarkers(stroma_cell_cluster)
+stroma.cell.markers = FindAllMarkers(stroma_cell_cluster,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = T)
+stroma.cell.markers %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_log2FC) -> top10
+
+#0 - Fibroblast
+FeaturePlot(stroma_cell_cluster, c("PDGFRA", "FAP", "COL1A2", "COL6A1",
+                                   "COL6A2", "LTBP2", "THY1", "FBLN2",
+                                   "DCN", "MFAP5"), label = T)
+#1 - Smooth_muscle
+FeaturePlot(stroma_cell_cluster, c('MYH11', 'TAGLN', 'ACTA2','TPM2',  
+                                   'SOD3',  'ACTG2', 'DES',  'CNN1'), label=T)
+#2 - Endothelia_vascular
+FeaturePlot(stroma_cell_cluster, c('PECAM1','AQP1', 'VWF'), label = T)
+#3 - Fibroblast_B3
+DimPlot(stroma_cell_cluster,
+        group.by = "sample_id",
+        label = T
+)
+FeaturePlot(stroma_cell_cluster, c("PDGFRA", "FAP", "COL1A2", "COL6A1",
+                                   "COL6A2", "LTBP2", "THY1", "FBLN2",
+                                   "DCN", "MFAP5"), label = T)
+#4 Epi_lung
+FeaturePlot(stroma_cell_cluster, c("CDH1", "EPCAM", "ELF3", "FXYD3", "HOPX", 
+                                   "MFSD2A", "ABCA3", "LAMP3", "BMP1", "AQP5",
+                                   "SFTPC", "SFTPA2", "ETV5"), label=T)
+#5 - Pericyte
+FeaturePlot(stroma_cell_cluster, c("ABCC9", 'KCNJ8',  "TRPC6", 'RGS5', 'FAM162B',
+                                   "PDGFRB", "DES", "ACTA2", 
+                                   "NDUFA4L2", "GJA4", "CSPG4"), label = T)
+#6 - Endothelia_lymphatic
+FeaturePlot(stroma_cell_cluster, c('CCL21',   'PROX1',  'FLT4'), label = T)
+
+new.stroma.cluster.ids <- c("Fibroblast",
+                             "Muscle_smooth",
+                             "Endothelia_vascular",
+                             "Fibroblast_B3",
+                             "Epi_lung"
+                             "Pericyte",
+                             "Endothelia_lymphatic")
+
+names(new.stroma.cluster.ids) <- levels(stroma_cell_cluster)
+stroma_cell_cluster <- RenameIdents(stroma_cell_cluster, new.stroma.cluster.ids)
+DimPlot(stroma_cell_cluster, label=T)
+stroma_cell_cluster[["annot_s"]] <- Idents(stroma_cell_cluster)
+
+soup.merge[["Level3"]] <- as.character(soup.merge@meta.data$Level3)
+for (i in colnames(stroma_cell_cluster)) {
+  if (i %in% rownames(soup.merge[["Level3"]])) {
+    soup.merge@meta.data[i,"Level3"] <- as.character(stroma_cell_cluster@meta.data[i,"annot_s"])
+  }
+}
+soup.merge@meta.data$Level3 <- as.factor(soup.merge@meta.data$Level3)
+
+
+# Add granularity to mast cells
+granulocyte_cell_cluster <- subset(soup.merge, idents = c("Granulocyte"))
+
+granulocyte_cell_cluster = RunPCA(granulocyte_cluster, assay = "SCT", npcs = 50)
+granulocyte_cell_cluster = RunUMAP(granulocyte_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(granulocyte_cell_cluster, ndims=50)
+granulocyte_cell_cluster = FindNeighbors(granulocyte_cell_cluster, dims = 1:5) %>% FindClusters(resolution = 0.2)
+
+DimPlot(granulocyte_cell_cluster,
+        group.by = "seurat_clusters",
+        label = T
+)
+
+granulocyte_cell_cluster = PrepSCTFindMarkers(granulocyte_cell_cluster)
+granulocyte.cell.markers = FindAllMarkers(granulocyte_cell_cluster,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = T)
+granulocyte.cell.markers %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_log2FC) -> top10
+
+# 0 - Mast_cell
+FeaturePlot(granulocyte_cell_cluster, c('TPSAB1', 'TPSB2', 'CPA3', 'HPGDS', 'MS4A2', 'SLC18A2', 'TPSD1', 'RGS13', 'HDC'), label=F)
+# 1 - Granulocyte
+FeaturePlot(granulocyte_cell_cluster, c("SYNE1", "JAML", "CLC", "MXD1"), label=F)
+
+new.granulocyte.cluster.ids <- c("Mast_cell","Granulocyte")
+
+names(new.granulocyte.cluster.ids) <- levels(granulocyte_cell_cluster)
+granulocyte_cell_cluster <- RenameIdents(granulocyte_cell_cluster, new.granulocyte.cluster.ids)
+DimPlot(granulocyte_cell_cluster, label=T)
+granulocyte_cell_cluster[["annot_g"]] <- Idents(granulocyte_cell_cluster)
+
+soup.merge[["Level3"]] <- as.character(soup.merge@meta.data$Level3)
+for (i in colnames(granulocyte_cell_cluster)) {
+  if (i %in% rownames(soup.merge[["Level3"]])) {
+    soup.merge@meta.data[i,"Level3"] <- as.character(granulocyte_cell_cluster@meta.data[i,"annot_s"])
+  }
+}
+soup.merge@meta.data$Level3 <- as.factor(soup.merge@meta.data$Level3)
+
+soup.merge[["Level2"]] <- as.character(soup.merge@meta.data$Level2)
+for (i in colnames(granulocyte_cell_cluster)) {
+  if (i %in% rownames(soup.merge[["Level2"]])) {
+    soup.merge@meta.data[i,"Level2"] <- as.character(granulocyte_cell_cluster@meta.data[i,"annot_s"])
+  }
+}
+soup.merge@meta.data$Level2 <- as.factor(soup.merge@meta.data$Level2)
+
+# Save the updated Seurat object with the new Level1 annotation
+saveRDS(soup.merge, file.path(postSoupX_path, "annotated_merged_with_Level1_2_3.rds"))

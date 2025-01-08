@@ -1,0 +1,221 @@
+# Load required libraries
+library(Seurat)
+library(plyr)
+library(ggplot2)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the Seurat object if not already loaded
+soup.merge <- readRDS(file.path(postSoupX_path, "annotated_merged_with_Level1_2_3.rds"))
+Idents(soup.merge) <- "Level3"
+
+
+# Add granularity to B cells
+b_cell_cluster <- subset(soup.merge, idents = c("B_cell","B_plasma"))
+
+b_cell_cluster = RunPCA(b_cell_cluster, assay = "SCT", npcs = 50)
+b_cell_cluster = RunUMAP(b_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(b_cell_cluster, ndims=50)
+b_cell_cluster = FindNeighbors(b_cell_cluster, dims = 1:10) %>% FindClusters(resolution = 0.05)
+
+DimPlot(b_cell_cluster,
+        group.by = "seurat_clusters",
+        label = T
+)
+
+b_cell_cluster = PrepSCTFindMarkers(b_cell_cluster)
+b.cell.markers = FindAllMarkers(b_cell_cluster,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = T)
+b.cell.markers %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_log2FC) -> top10
+
+# 0 - B_cell
+FeaturePlot(b_cell_cluster, c("CD19", "CD20", "MS4A1", "CD79A", "CD79B", "PAX5", "CD22", "BLNK", "CD72"), label=T)
+# 1 - B_plasma_IGHG3
+FeaturePlot(b_cell_cluster, c("JCHAIN", "IGHG3"), label=T)
+# 3 - B_plasma_IGHA1
+FeaturePlot(b_cell_cluster, c("JCHAIN","IGHA1"), label=T)
+# 2 - B_plasma_IGHG1
+FeaturePlot(b_cell_cluster, c("JCHAIN", "IGHG1"), label=T)
+# 4 - B_plasma_IGHA1
+FeaturePlot(b_cell_cluster, c("JCHAIN","IGHA1"), label=T)
+# 5 - B_plasma_IGKC
+FeaturePlot(b_cell_cluster, c("JCHAIN", "IGKC"), label=T)
+# 6 - B_plasma_IGLC1
+FeaturePlot(b_cell_cluster, c("JCHAIN", "IGLC1"), label=T)
+# 7 - B_plasma_IGHM
+FeaturePlot(b_cell_cluster, c("JCHAIN", "IGHM"), label=T)
+# 8 - B_plasma_IGHM
+FeaturePlot(b_cell_cluster, c("JCHAIN", "IGHM"), label=T)
+
+new.b.cluster.ids <- c("B_cell",
+                            "B_plasma_IGHG3",
+                            "B_plasma_IGHA1",
+                            "B_plasma_IGHG1",
+                            "B_plasma_IGHA1"
+                            "B_plasma_IGKC",
+                            "B_plasma_IGLC1",
+                            "B_plasma_IGHM",
+                            "B_plasma_IGHM")
+
+names(new.b.cluster.ids) <- levels(b_cell_cluster)
+b_cell_cluster <- RenameIdents(b_cell_cluster, new.b.cluster.ids)
+DimPlot(b_cell_cluster, label=T)
+b_cell_cluster[["annot_b"]] <- Idents(b_cell_cluster)
+
+soup.merge[["Harmonised_Level4"]] <- as.character(soup.merge@meta.data$Level3)
+for (i in colnames(b_cell_cluster)) {
+  if (i %in% rownames(soup.merge[["Level3"]])) {
+    soup.merge@meta.data[i,"Harmonised_Level4"] <- as.character(b_cell_cluster@meta.data[i,"annot_b"])
+  }
+}
+soup.merge@meta.data$Harmonised_Level4 <- as.factor(soup.merge@meta.data$Harmonised_Level4)
+
+
+# DEGs between the tumour populations
+# List of tumor clusters to compare
+tumors <- c("Tu_B1", "Tu_B4", "Tu_B3", "Tu_L1", "Tu_L2", "Tu_L3", "Tu_L4")
+
+# Initialize an empty list to store top markers for each tumor
+top_markers_list <- list()
+
+# Loop through each tumor cluster
+for (tumor in tumors) {
+  # Find markers for each tumor vs the other tumors
+  tum.cell.markers <- FindMarkers(soup.merge, ident.1 = tumor, ident.2 = setdiff(tumors, tumor),
+                                  only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = T)
+  
+  # Normalize pct.1 and avg_log2FC
+  tum.cell.markers <- tum.cell.markers %>%
+    mutate(
+      pct.1_norm = (pct.1 - min(pct.1)) / (max(pct.1) - min(pct.1)),
+      avg_log2FC_norm = (avg_log2FC - min(avg_log2FC)) / (max(avg_log2FC) - min(avg_log2FC))
+    )
+  
+  # Create a combined score by averaging the two normalized values
+  tum.cell.markers <- tum.cell.markers %>%
+    mutate(combined_score = (pct.1_norm + avg_log2FC_norm) / 2)
+  
+  # Sort by the combined score and select the top 10 genes
+  top10 <- tum.cell.markers %>%
+    arrange(desc(combined_score)) %>%
+    slice_max(order_by = combined_score, n = 20, with_ties = FALSE)
+  
+  # Store the result in the list with the tumor name as the key
+  top_markers_list[[tumor]] <- top10
+}
+
+# Combine all results into one data frame
+final_top_markers <- bind_rows(top_markers_list, .id = "tumor")
+
+soup.merge@meta.data <- soup.merge@meta.data %>%
+mutate(Harmonised_Level4 = recode(Harmonised_Level4,
+                            "Tu_B1" = "Tu_B1_MUCL1",
+                            "Tu_B4" = "Tu_B4_RHOB",
+                            "Tu_B3" = "Tu_B3_CYP4F8",
+                            "Tu_L1" = "Tu_L1_SFTPB",
+                            "Tu_L3" = "Tu_L3_G0S2",
+                            "Tu_L4" = "Tu_L4_KRT17"))
+
+# Add granularity to tumour cells 
+# Tumor L3
+tu_l3_cell_cluster <- subset(soup.merge, idents = "Tu_L3")
+tu_l3_cell_cluster <- RunPCA(tu_l3_cell_cluster, assay = "SCT", npcs = 50)
+tu_l3_cell_cluster <- RunUMAP(tu_l3_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(tu_l3_cell_cluster, ndims = 50)
+tu_l3_cell_cluster <- FindNeighbors(tu_l3_cell_cluster, dims = 1:10) %>% FindClusters(resolution = 0.1)
+
+DimPlot(tu_l3_cell_cluster, group.by = "seurat_clusters", label = TRUE)
+
+tu_l3_cell_cluster <- PrepSCTFindMarkers(tu_l3_cell_cluster)
+tu_l3.cell.markers <- FindAllMarkers(tu_l3_cell_cluster, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = TRUE)
+top10_L3 <- tu_l3.cell.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+
+# Feature Plots for Tumor L3
+FeaturePlot(tu_l3_cell_cluster, c("GLUL", "FTL", "TMSB4X"), label = TRUE)
+
+# Rename and store annotations for Tumor L3
+new.tu_l3.cluster.ids <- c("Tu_L3_G0S2_immune_signature", "Tu_L3_G0S2")
+names(new.tu_l3.cluster.ids) <- levels(tu_l3_cell_cluster)
+tu_l3_cell_cluster <- RenameIdents(tu_l3_cell_cluster, new.tu_l3.cluster.ids)
+DimPlot(tu_l3_cell_cluster, label = TRUE)
+tu_l3_cell_cluster[["annot_t"]] <- Idents(tu_l3_cell_cluster)
+
+soup.merge[["Harmonised_Level4"]] <- as.character(soup.merge$Harmonised_Level4)
+for (i in colnames(tu_l3_cell_cluster)) {
+  if (i %in% rownames(soup.merge@meta.data)) {
+    soup.merge@meta.data[i, "Harmonised_Level4"] <- as.character(tu_l3_cell_cluster@meta.data[i, "annot_t"])
+  }
+}
+soup.merge@meta.data$Harmonised_Level4 <- as.factor(soup.merge$Harmonised_Level4)
+
+### Tumor L4
+tu_l4_cell_cluster <- subset(soup.merge, idents = "Tu_L4")
+tu_l4_cell_cluster <- RunPCA(tu_l4_cell_cluster, assay = "SCT", npcs = 50)
+tu_l4_cell_cluster <- RunUMAP(tu_l4_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(tu_l4_cell_cluster, ndims = 50)
+tu_l4_cell_cluster <- FindNeighbors(tu_l4_cell_cluster, dims = 1:6) %>% FindClusters(resolution = 0.2)
+
+DimPlot(tu_l4_cell_cluster, group.by = "seurat_clusters", label = TRUE)
+
+tu_l4_cell_cluster <- PrepSCTFindMarkers(tu_l4_cell_cluster)
+tu_l4.cell.markers <- FindAllMarkers(tu_l4_cell_cluster, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = TRUE)
+top10_L4 <- tu_l4.cell.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+
+# Feature Plots for Tumor L4
+FeaturePlot(tu_l4_cell_cluster, c("MT-ND6", "MT-ND4", "MT-CO2"), label = TRUE)
+FeaturePlot(tu_l4_cell_cluster, c("PLA2G4B", "IMMP2L", "AP3M2"), label = TRUE)
+FeaturePlot(tu_l4_cell_cluster, c("S100A9", "S100A8", "IL1RN"), label = TRUE)
+FeaturePlot(tu_l4_cell_cluster, c("MUC5AC", "MUC5B"), label = TRUE)
+
+new.tu_l4.cluster.ids <- c("Tu_L4_KRT17_necrosis", "Tu_L4_KRT17_immune_signature", "Tu_L4_KRT17_neutrophil_signature", "Tu_L4_KRT17_mucous")
+names(new.tu_l4.cluster.ids) <- levels(tu_l4_cell_cluster)
+tu_l4_cell_cluster <- RenameIdents(tu_l4_cell_cluster, new.tu_l4.cluster.ids)
+DimPlot(tu_l4_cell_cluster, label = TRUE)
+tu_l4_cell_cluster[["annot_t"]] <- Idents(tu_l4_cell_cluster)
+
+soup.merge[["Harmonised_Level4"]] <- as.character(soup.merge$Harmonised_Level4)
+for (i in colnames(tu_l4_cell_cluster)) {
+  if (i %in% rownames(soup.merge@meta.data)) {
+    soup.merge@meta.data[i, "Harmonised_Level4"] <- as.character(tu_l4_cell_cluster@meta.data[i, "annot_t"])
+  }
+}
+soup.merge@meta.data$Harmonised_Level4 <- as.factor(soup.merge@meta.data$Harmonised_Level4)
+
+### Tumor B1
+tu_b1_cell_cluster <- subset(soup.merge, idents = "Tu_L4")
+tu_b1_cell_cluster <- RunPCA(tu_b1_cell_cluster, assay = "SCT", npcs = 50)
+tu_b1_cell_cluster <- RunUMAP(tu_b1_cell_cluster, assay = "SCT", reduction = "pca", dims = 1:50)
+ElbowPlot(tu_b1_cell_cluster, ndims = 50)
+tu_b1_cell_cluster <- FindNeighbors(tu_b1_cell_cluster, dims = 1:6) %>% FindClusters(resolution = 0.1)
+
+DimPlot(tu_b1_cell_cluster, group.by = "seurat_clusters", label = TRUE)
+
+tu_b1_cell_cluster <- PrepSCTFindMarkers(tu_b1_cell_cluster)
+tu_b1.cell.markers <- FindAllMarkers(tu_b1_cell_cluster, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, verbose = TRUE)
+top10_B1 <- tu_b1.cell.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+
+# Feature Plots for Tumor B1
+FeaturePlot(tu_b1_cell_cluster, c("IKBKB", "LUC7L"), label = TRUE)
+FeaturePlot(tu_b1_cell_cluster, c("MT-CO2", "MT-CO3", "MT-ND4"), label = TRUE)
+FeaturePlot(tu_b1_cell_cluster, c("S100A9", "S100A8", "IL1RN"), label = TRUE)
+
+new.tu_b1.cluster.ids <- c("Tu_B1_MUCL1_transcription", "Tu_B1_MUCL1_necrosis", "Tu_B1_MUCL1")
+names(new.tu_b1.cluster.ids) <- levels(tu_b1_cell_cluster)
+tu_b1_cell_cluster <- RenameIdents(tu_b1_cell_cluster, new.tu_b1.cluster.ids)
+DimPlot(tu_b1_cell_cluster, label = TRUE)
+tu_b1_cell_cluster[["annot_t"]] <- Idents(tu_b1_cell_cluster)
+
+soup.merge[["Harmonised_Level4"]] <- as.character(soup.merge$Harmonised_Level4)
+for (i in colnames(tu_b1_cell_cluster)) {
+  if (i %in% rownames(soup.merge@meta.data)) {
+    soup.merge@meta.data[i, "Harmonised_Level4"] <- as.character(tu_b1_cell_cluster@meta.data[i, "annot_t"])
+  }
+}
+soup.merge@meta.data$Harmonised_Level4 <- as.factor(soup.merge@meta.data$Harmonised_Level4)
+
+
+# save the final object
+DimPlot(soup.merge, label=T, group.by = "Harmonised_Level4")
+saveRDS(soup.merge, file.path(postSoupX_path, "annotated_merged_with_Level1_2_3_4.rds"))

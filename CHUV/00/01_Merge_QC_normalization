@@ -1,0 +1,54 @@
+# Load required libraries
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load Seurat objects from postSoupX files
+obj.list <- lapply(names(samples), function(samplename) {
+  rds <- file.path(postSoupX_path, paste0(samplename, "-postSoupX.rds"))
+  if (file.exists(rds)) {
+    se_obj <- readRDS(rds)
+    se_obj[["sample_id"]] <- samplename
+    return(se_obj)
+  }
+})
+
+# Assign sample names to the object list
+names(obj.list) <- names(samples)
+
+# Merge Seurat objects
+soup.merge <- merge(obj.list[[1]], 
+                    y = obj.list[2:length(obj.list)], 
+                    add.cell.ids = names(obj.list), 
+                    project = "mosaic")
+
+# Calculate percentage of mitochondrial, ribosomal, and hemoglobin genes
+soup.merge[["percent_mt"]] <- PercentageFeatureSet(soup.merge, pattern = "^MT-")
+soup.merge[["percent_ribo"]] <- PercentageFeatureSet(soup.merge, pattern = "^RP[SL]")
+soup.merge[["percent_hb"]] <- PercentageFeatureSet(soup.merge, pattern = "^HB[^(P)]")
+
+# Basic QC: Filter cells based on mitochondrial content and number of features
+soup.merge <- subset(soup.merge, subset = percent_mt < 20 & nFeature_RNA > 200)
+
+# Save the merged object after basic QC
+saveRDS(soup.merge, file.path(postSoupX_path, "merged_basic_qc.rds"))
+
+# Perform SCTransform and run dimensionality reduction
+soup.merge <- SCTransform(soup.merge, verbose = FALSE)
+soup.merge <- RunPCA(soup.merge, assay = "SCT", npcs = 50)
+soup.merge <- RunUMAP(soup.merge, assay = "SCT", reduction = "pca", dims = 1:50)
+
+# Visualize Elbow Plot
+ElbowPlot(soup.merge, ndims = 50)
+
+# Find neighbors and clusters
+soup.merge <- FindNeighbors(soup.merge, dims = 1:20) %>% FindClusters(resolution = 0.35)
+
+# Visualize clusters and specific features
+DimPlot(soup.merge, group.by = "seurat_clusters", label = TRUE)
+
+# Save the final clustered Seurat object
+saveRDS(soup.merge, file.path(postSoupX_path, "merged_clustered.rds"))

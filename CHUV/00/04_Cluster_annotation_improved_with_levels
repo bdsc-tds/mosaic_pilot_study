@@ -1,0 +1,94 @@
+# Load required libraries
+library(Seurat)
+library(plyr)
+library(ggplot2)
+
+# Set the common path for postSoupX files
+postSoupX_path <- "/users/dbuszta/owkin_manuscript/results/"
+
+# Load the Seurat object if not already loaded
+soup.merge <- readRDS(file.path(postSoupX_path, "annotated_merged_clustered.rds"))
+Idents(soup.merge) <- "seurat_clusters"
+
+# Define the new Level1 grouping based on the annotations
+level1_labels <-    c("T_NK",           # Label cluster 0 as CD4+ T cells
+                      "Stroma",         # Label cluster 1 as Fibroblasts or muscle cells
+                      "Myeloid",        # Label cluster 2 as myeloid lineage cells
+                      "T_NK",           # Label cluster 3 as CD8+ T cells
+                      "Myeloid",        # Label cluster 4 as Macrophages
+                      "Tumor_Breast",   # Label cluster 5 as Tumor B2 cells
+                      "B",              # Label cluster 6 as B cells
+                      "B",              # Label cluster 7 as Plasma cells
+                      "B",              # Label cluster 8 as Plasma cells
+                      "Tumor_Lung",     # Label cluster 9 as Tumor L4 cells
+                      "Stroma",         # Label cluster 10 as Endothelial cells
+                      "Stroma",         # Label cluster 11 as Fibroblasts or muscle cells
+                      "Tumor_Breast",   # Label cluster 12 as Tumor B1 cells
+                      "Tumor_Breast",   # Label cluster 13 as Tumor B4 cells
+                      "Granulocyte",    # Label cluster 14 as Mast cells
+                      "B",              # Label cluster 15 as Plasma cells
+                      "Epithelia",      # Label cluster 16 as Alveolar type 2 cells
+                      "Tumor_Lung",     # Label cluster 17 as Tumor L3 cells
+                      "Tumor_Lung",     # Label cluster 18 as Tumor L2 cells
+                      "B",              # Label cluster 19 as Plasma cells
+                      "B",              # Label cluster 20 as Plasma cells
+                      "B",              # Label cluster 21 as Plasma cells
+                      "Myeloid",        # Label cluster 22 as Plasmacytoid Dendritic cells
+                      "Tumor_Lung",     # Label cluster 23 as Tumor L1 cells
+                      "Myeloid")        # Label cluster 24 as Activated Dendritic cells
+
+ # Define the new Level2 grouping based on the annotations
+level2_labels <-    c("T_NK",           # Label cluster 0 as CD4+ T cells
+                      "Fibro_Muscle",   # Label cluster 1 as Fibroblasts or muscle cells
+                      "Myeloid",        # Label cluster 2 as myeloid lineage cells
+                      "T_NK",           # Label cluster 3 as CD8+ T cells
+                      "Myeloid",        # Label cluster 4 as Macrophages
+                      "Tu_B2",   # Label cluster 5 as Tumor B2 cells
+                      "B",              # Label cluster 6 as B cells
+                      "B",              # Label cluster 7 as Plasma cells
+                      "B",              # Label cluster 8 as Plasma cells
+                      "Tu_L4",          # Label cluster 9 as Tumor L4 cells
+                      "Vessel",         # Label cluster 10 as Endothelial cells
+                      "Stroma",         # Label cluster 11 as Fibroblasts or muscle cells
+                      "Tu_B1",          # Label cluster 12 as Tumor B1 cells
+                      "Tu_B4",          # Label cluster 13 as Tumor B4 cells
+                      "Mast_cell",      # Label cluster 14 as Mast cells
+                      "B",              # Label cluster 15 as Plasma cells
+                      "Stroma",         # Label cluster 16 as Alveolar type 2 cells
+                      "Tu_L3",          # Label cluster 17 as Tumor L3 cells
+                      "Tu_L2",          # Label cluster 18 as Tumor L2 cells
+                      "B",              # Label cluster 19 as Plasma cells
+                      "B",              # Label cluster 20 as Plasma cells
+                      "B",              # Label cluster 21 as Plasma cells
+                      "Myeloid",        # Label cluster 22 as Plasmacytoid Dendritic cells
+                      "Tu_L1",          # Label cluster 23 as Tumor L1 cells
+                      "Myeloid")        # Label cluster 24 as Activated Dendritic cells
+                  
+
+# Assign the Level1 labels based on the cluster identities
+names(level1_labels) <- levels(soup.merge)
+soup.merge <- RenameIdents(soup.merge, level1_labels)
+# Add annotation as a new column in meta.data
+soup.merge[["Level1"]] <- Idents(soup.merge)
+
+names(level2_labels) <- levels(soup.merge)
+soup.merge <- RenameIdents(soup.merge, level2_labels)
+# Add annotation as a new column in meta.data
+soup.merge[["Level2"]] <- Idents(soup.merge)
+
+# Save the updated Seurat object with the new Level1 annotation
+saveRDS(soup.merge, file.path(postSoupX_path, "annotated_merged_with_Level1_2.rds"))
+
+# Check the new annotation and visualize
+table(soup.merge$Level1)  # View the distribution of cells in the new Level1 groups
+DimPlot(soup.merge, group.by = "Level1", label = TRUE)
+
+# Check the new annotation and visualize
+table(soup.merge$Level2)  # View the distribution of cells in the new Level1 groups
+DimPlot(soup.merge, group.by = "Level2", label = TRUE)
+
+# Save a plot showing the Level1 annotations
+pdf(file.path(postSoupX_path, "Level1_2_clusters.pdf"))
+DimPlot(soup.merge, group.by = "Level1", label = TRUE)
+DimPlot(soup.merge, group.by = "Level2", label = TRUE)
+dev.off()
