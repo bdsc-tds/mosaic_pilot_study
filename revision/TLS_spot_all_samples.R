@@ -2,8 +2,12 @@ library(BayesSpace)
 library(patchwork)
 library(ggplot2)
 
+# disease = "DLBCL"
+# sample = "DLBCL_6"
 disease = "Lung"
-sample = "L1_4"
+sample = "L4_2"
+# disease = "Breast"
+# sample = "B4_2"
 # resolution = "spots"
 # resolution = "subspots"
 read_path = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/", disease, "/", sample)
@@ -21,8 +25,18 @@ sce_enhanced <- readRDS(file.path(read_path, paste0(sample, "_baye_clustered_all
 dim(rowData(sce_enhanced))
 
 # -------------------------------------------------------------------------
-markers <- c("MS4A1", "CXCL13", "CXCR5", "CCL19")
+# markers <- c("MS4A1", 
+#              "CXCL13", 
+#              "CXCR5", 
+#              "CCL19")
 
+# markers <- c("CD14", "CD68", "CSF1R", "ITGAM",# Marcrophage
+#              "CD80", "CD86", "IL1B", # M1
+#              "CD163", "MRC1", "IL10") # M2
+
+markers <- c("MS4A1", "CXCL13", # B cells
+             "CD3D", "CD4",     # T cells
+             "CD14", "CD68", "CD163") # Marcrophage
 
 plot_expression <- function(sce_obj = sce, marker = "CD4"){
   featurePlot(sce_obj, marker, assay.type = "log1p", color=NA) +
@@ -43,20 +57,20 @@ enhanced.feature.plots2 <- purrr::map(markers, function(x) plot_expression(sce_e
 
 # -------------------------------------------------------------------------
 saveFeaturePlots <- function(feature.plots, enhanced.feature.plots, legend, width, height){
-  p1 <- patchwork::wrap_plots(feature.plots, ncol = 4) + plot_layout(guides = "collect") 
-  p2 <- patchwork::wrap_plots(enhanced.feature.plots, ncol = 4) + plot_layout(guides = "collect") 
+  p1 <- patchwork::wrap_plots(feature.plots, ncol = 7) + plot_layout(guides = "collect") 
+  p2 <- patchwork::wrap_plots(enhanced.feature.plots, ncol = 7) + plot_layout(guides = "collect") 
   
-  fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5"
-  pdf(file = file.path(paste0(fig_path, "/L1/"),
-                       paste0(sample, "_TLS_subspot_spot_", legend, ".pdf")),
+  fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/All_samples_TLS"
+  # pdf(file = file.path(file.path(fig_path, legend), paste0(sample, "_TLS_subspot_spot.pdf")),
+  pdf(file = file.path(file.path(fig_path, legend), paste0(sample, "_TLS_subspot_spot_BTMacro.pdf")),
       width = width,
       height = height)
-  print(p2 / p1)
+  print(p1 / p2)
   dev.off()
 }
 
-saveFeaturePlots(feature.plots1, enhanced.feature.plots1, "legend", width = 10, height = 15)
-saveFeaturePlots(feature.plots2, enhanced.feature.plots2, "nolegend", width = 10, height = 4.5)
+saveFeaturePlots(feature.plots1, enhanced.feature.plots1, "legend", width = 17, height = 25)
+saveFeaturePlots(feature.plots2, enhanced.feature.plots2, "nolegend", width = 17, height = 4.5)
 
 
 

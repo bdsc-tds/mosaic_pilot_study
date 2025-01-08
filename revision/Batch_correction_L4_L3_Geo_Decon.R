@@ -1,43 +1,6 @@
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
-library(stringr)
-library(tidyr)
-library(dplyr)
-
-# chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
-datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
-sigmatpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/signature_matrix/level1_5_immune/"
-deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
 
 ###########################################################################
-#                               Deconvolution                             #
-###########################################################################
-# disease = "breast"
-# disease = "lung"
-disease = "dlbcl"
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/GeoMx/00_GeoMx_Paths.R")
-sample_name <- ifelse(disease == "dlbcl", "patient", "section_id")
-spe_ruv <- readRDS(file.path(datapath, paste0(disease, "_spe_ruv.rds")))
-
-
-# Signature matrix --------------------------------------------------------
-if(disease == "breast"){
-  # chrom <- readRDS(file.path(chrompath, "chrom_breast_add_lung_healthy.rds"))
-  sigmat_name = "sigmat_breast_add_lung_healthy.rds"
-  CF_order <- c("Malignant", "Other", "T cells", "Macrophage")                                            # Fig 2, 3 
-}else if(disease == "lung"){
-  # chrom <- readRDS(file.path(chrompath, "chrom_lung_add_breast_healthy.rds")) 
-  sigmat_name = "sigmat_lung_add_breast_healthy.rds"
-  CF_order <- c("Malignant", "Other", "T cells", "Macrophage")                                            # Fig 2, 3 
-}else{
-  # chrom <- readRDS(file.path(chrompath, "chrom_dlbcl.rds")); chrom$patient <- chrom$sample_id
-  sigmat_name = "sigmat_dlbcl.rds"
-  # CT_order <- c("Epithelia", "Stroma", "B cells", "NK", "Myeloid else",  "Macrophage", "T cells", "Tumor") # Fig 6
-  CF_order <- c("B cells", "Other", "T cells", "Macrophage")                                               # Fig 2, 3 
-}
-CT_order <- c("Epithelia", "Stroma", "Tumor", "Macrophage", "T cells", "B cells", "NK", "Myeloid else")  # Fig 2, 3 
-new_ref_matrix <- readRDS(file.path(sigmatpath, sigmat_name))
-
-
+## No batch correction decon 
 # Prep decon --------------------------------------------------------------
 # NegProbe name
 negProbeName <- rownames(spe_ruv)[which(grepl("Neg", rownames(spe_ruv)))]
@@ -72,7 +35,7 @@ gathered_df_ <- gathered_df %>%
   left_join(CD_, by = "sample") %>%
   filter(cell_fraction != "PanCK-") %>%
   dplyr::rename(CellType = column,
-         Fraction = value) %>%
+                Fraction = value) %>%
   mutate(cell_fraction = ifelse(cell_fraction == "Macro", "Macrophage", cell_fraction),
          CellType = str_replace(CellType, "\\.", " ")) 
 
@@ -80,10 +43,13 @@ gathered_df_ <- gathered_df %>%
 gathered_df_$cell_fraction <- factor(gathered_df_$cell_fraction, levels = CF_order)
 gathered_df_$CellType <- factor(gathered_df_$CellType, levels = CT_order)
 
-write.csv(gathered_df_, 
-          file.path(deconresultpath, paste0(disease, "_batched_decon_long.csv")), 
-          row.names = FALSE)
 
+
+###########################################################################
+## Batch corrected decon
+deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
+disease <- "lung"
+gathered_df_ <- read.csv(file.path(deconresultpath, paste0(disease, "_batched_decon_long.csv")), row.names = FALSE)
 
 # Plot ------------------------------------------------------------------
 p <- ggplot(gathered_df_, aes(x=CellType, y=Fraction)) +
@@ -101,5 +67,6 @@ p <- ggplot(gathered_df_, aes(x=CellType, y=Fraction)) +
   ggtitle("")
 
 p
+
 
 

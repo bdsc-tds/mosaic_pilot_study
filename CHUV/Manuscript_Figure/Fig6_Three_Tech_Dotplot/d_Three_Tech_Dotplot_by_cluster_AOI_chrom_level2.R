@@ -5,7 +5,7 @@ library(tidyr)
 library(tidyverse)
 library(patchwork)
 
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig6/"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig6/"
 
 # DLBCLnChromium_Marker_Gene_List <- c(
 #   "MS4A1", "TNFRSF13C", "CD79B", "CD37", "PSMB8", "CD19", "TYMS",
@@ -21,7 +21,7 @@ DLBCLnChromium_Marker_Gene_List <- c(
   "FCRL3", "BCL6", "BCL11A", "BCL2L11", "BCL7A")
 
 # Chromium ----------------------------------------------------------------
-chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
+chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
 chrom <- readRDS(file.path(chrompath, "chrom_dlbcl.rds"))
 
 ## Separate tumor subtypes
@@ -38,6 +38,7 @@ Idents(chrom) <- factor(chrom$level1_5, levels = c("Epithelia", "Stroma", "B cel
 # chrom <- chrom[rownames(chrom) %in% DLBCLnChromium_Marker_Gene_List, ]
 
 p_chrom <- DotPlot(
+  # assay = "RNA",
   chrom,
   features = rev(DLBCLnChromium_Marker_Gene_List)) + 
   coord_flip() + 
@@ -62,7 +63,7 @@ p_chrom_legen <- DotPlot(
   )
 
 # Visium ------------------------------------------------------------------
-vispath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/dlbcl/spotclean/Results/"
+vispath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/dlbcl/spotclean/Results/"
 vis <- readRDS(file.path(vispath, "Dlbcl-merge-SCTpostSpotClean.rds"))
 
 Idents(vis) <- factor(vis$annot, levels = c("Epithelium", "Stroma", "Necrosis", "Plasma", "Vessels/Immune", 
@@ -98,7 +99,7 @@ p_vis_legen <- DotPlot(
 
 
 # GeoMx ----------------------------------------------------------------
-geo <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/dlbcl_seu_ruv.rds")
+geo <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/dlbcl_seu_ruv.rds")
 # head(Idents(geo)) # Levels: Other, Macrophage, T cells, Tu_D1 Tu_D2 Tu_D3 Tu_D4 Tu_D5 Tu_D6
 Idents(geo) <- factor(geo$clusters, levels = c("Other", "Macrophage", "T cells", "Tu_D1", "Tu_D2", "Tu_D3", "Tu_D4", "Tu_D5", "Tu_D6"))
 # geo <- geo[rownames(geo) %in% DLBCLnChromium_Marker_Gene_List, ]
@@ -108,7 +109,7 @@ p_geo <- DotPlot(
   features = rev(DLBCLnChromium_Marker_Gene_List)) + 
   coord_flip() + 
   theme(axis.text.x = element_text(angle = 90, size = 10.5, hjust = 1, vjust = 0.5),
-        axis.text.y = element_blank(),
+        # axis.text.y = element_blank(),
         axis.title = element_blank(),
         axis.ticks = element_blank(),
         axis.line.y = element_blank()
@@ -159,7 +160,7 @@ pdf(file = file.path(figpath, plot_title),
 print(p_vis_legen)
 dev.off()
 
-# Legend vis
+# Legend geo
 plot_title = "d_Three_Tech_Cluster_Dotplot_level2_new_gene_geo_legend.pdf"
 pdf(file = file.path(figpath, plot_title),
     width = 10,

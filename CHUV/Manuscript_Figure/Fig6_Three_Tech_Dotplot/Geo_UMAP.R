@@ -8,7 +8,7 @@ read_path <- paste0(absolute_path_cur, "Owkin_Pilot_Intermediate/GeoMx/GeoMx_tes
 
 # -------------------------------------------------------------------------
 disease = "dlbcl"
-spe_ruv <- readRDS(file.path("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/", paste0(disease, "_spe_ruv.rds")))
+spe_ruv <- readRDS(file.path("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/", paste0(disease, "_spe_ruv.rds")))
 
 spe_ruv$clusters <- case_when(spe_ruv$cell_fraction == "Macro" ~ "Macrophage",
                               spe_ruv$cell_fraction == "B cells" & spe_ruv$patient == "D1" ~ "Tu_D1", 
@@ -31,6 +31,8 @@ spe_ruv$clusters <- factor(spe_ruv$clusters, levels = dlbcl_cluster_type)
 library(Seurat)
 seu_ruv <- as.Seurat(spe_ruv)
 Idents(seu_ruv) <- seu_ruv$clusters
+datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched"
+saveRDS(seu_ruv, file.path(datapath, "dlbcl_seu_ruv.rds"))
 
 plot <- DimPlot(seu_ruv, reduction = "UMAP", cols = dlbcl_cluster_color) + NoLegend()
 p <- LabelClusters(plot = plot, id = "ident", box = TRUE, color = "white") +

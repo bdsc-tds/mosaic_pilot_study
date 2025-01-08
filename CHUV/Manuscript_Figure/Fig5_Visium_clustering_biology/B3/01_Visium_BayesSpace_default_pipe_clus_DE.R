@@ -1,16 +1,18 @@
 # -------------------------------------------------------------------------
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5/B3"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5/B3"
 
 # noSpotClean + logNorm + BayesSpace
 sample_name = "B3_2"
 disease = "breast"
-sce <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/Breast/B3_2/B3_2_baye_clustered.rds") # noSpotClean + logNorm + BayesSpace
+sce <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/Breast/B3_2/B3_2_baye_clustered.rds") # noSpotClean + logNorm + BayesSpace
 
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
+source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/Visium/01_params.R")
 set.seed(100)
-sce <- runUMAP(sce, assay.type = "logcounts")
+#sce <- runUMAP(sce, assay.type = "logcounts")
+sce <- runUMAP(sce, assay.type = "logcounts", n_neighbors = 5) 
 set.seed(100)
-sce <- runTSNE(sce, assay.type = "logcounts")
+# sce <- runTSNE(sce, assay.type = "logcounts")
+sce <- runUMAP(sce, assay.type = "logcounts", n_neighbors = 5) 
 
 sce$spatial.cluster <- as.factor(sce$spatial.cluster)
 plotDimRed(sce, type = "UMAP", annotate = "spatial.cluster", text_by = "spatial.cluster") |
@@ -194,7 +196,7 @@ head(DE_result)
 # plotDimRed(sce, type = "UMAP", annotate = "spatial.cluster", text_by = "spatial.cluster") + facet_wrap(~ spatial.cluster)
 # 
 # sce$spatial.cluster_merge <- ifelse(sce$spatial.cluster %in% c(5, 9), "5_9", sce$spatial.cluster)
-# sce$spatial.cluster_merge2 <- ifelse(sce$spatial.cluster %in% c(1, 5, 9), "1_5_9", sce$spatial.cluster)
+sce$spatial.cluster_merge2 <- ifelse(sce$spatial.cluster %in% c(1, 5, 9), "1_5_9", sce$spatial.cluster)
 # 
 # # > table(sce$Tu_Consensus, sce$spatial.cluster159reclus)
 # # 
@@ -223,14 +225,14 @@ head(DE_result)
 # # TME clus 14: Tu consensus FALSE in clus 14 + entire clus 4
 # # TME clus 159: Tu consensus FALSE in clus 159_1 and clus 159_2
 # 
-# save_path_DE <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures/Fig_DE_Volcano/B1_2"
-# DE_result <- seurat_cluster_DE(sce, clusters = c("1_5_9", "14"), cluster_col="spatial.cluster_merge2", n_markers = 40)
-# contrast <- "1&5&9_14"
-# 
-# # DE_result <- seurat_cluster_DE(sce, cluster_col="spatial.cluster159reclus_tu_consensus", clusters = c("14", "159_1", "159_2"), n_markers = 100)
-# DE_result <- seurat_cluster_DE(sce, cluster_col="spatial.cluster_tu_consensus", clusters = c("14", "159"), n_markers = 100)
-# DE_result2 <- seurat_cluster_DE(sce, cluster_col="spatial.cluster_tu_consensus", clusters = c("14_TME", "159_TME"), n_markers = 100)
-# 
-# 
-# write.csv(DE_result, file.path(save_path_DE, paste0(contrast, ".csv")))
-# head(DE_result)
+save_path_DE <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures/Fig_DE_Volcano/B3_2"
+DE_result <- seurat_cluster_DE(sce, clusters = c("1_5_9", "14"), cluster_col="spatial.cluster_merge2", n_markers = 40)
+contrast <- "1&5&9_14"
+
+# DE_result <- seurat_cluster_DE(sce, cluster_col="spatial.cluster159reclus_tu_consensus", clusters = c("14", "159_1", "159_2"), n_markers = 100)
+DE_result <- seurat_cluster_DE(sce, cluster_col="spatial.cluster_tu_consensus", clusters = c("14", "159"), n_markers = 100)
+DE_result2 <- seurat_cluster_DE(sce, cluster_col="spatial.cluster_tu_consensus", clusters = c("14_TME", "159_TME"), n_markers = 100)
+
+
+write.csv(DE_result, file.path(save_path_DE, paste0(contrast, ".csv")))
+head(DE_result)
