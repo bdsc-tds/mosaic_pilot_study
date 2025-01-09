@@ -51,7 +51,9 @@ For visualization, the following code links are mapped to the creation of each f
 |  Visium GeoMx Deconvolution Specificity ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig2*)) | Fig. 2 |
 |  Visium GeoMx Registration ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig3_12_Vis_Geo_Mapped)) | Fig. 3 |
 |  Visium Annotation Gallery ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig4_Vis_patho_decon_gallery)) | Fig. 4 |
+|  GeoMx Annotation Gallery ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig4_Vis_patho_decon_gallery)) | Fig. 4 |
 |  Intra-patient heterogeneity in Visium ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig5_Visium_clustering_biology)) | Fig. 5 |
+|  Intra-patient heterogeneity in GeoMx ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig5_Visium_clustering_biology)) | Fig. 5 |
 |  Inter-patient heterogeneity across all technologies ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig6_Three_Tech_Dotplot)) | Fig. 6|
 
 ## Supplementary Figures

@@ -1,6 +1,6 @@
 source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig2"
-deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
+deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/Final_level4_decon_results_pt_specific/"
 
 deconpath = deconresultpath
 
@@ -9,6 +9,10 @@ gathered_df_breast <- read.csv(file.path(deconpath, "breast_batched_decon_long.c
 gathered_df_lung <- read.csv(file.path(deconpath, "lung_batched_decon_long.csv"))
 gathered_df_dlbcl <- read.csv(file.path(deconpath, "dlbcl_batched_decon_long.csv"))
 gathered_df_dlbcl$cell_fraction <- ifelse(gathered_df_dlbcl$cell_fraction == "B cells", "Malignant", gathered_df_dlbcl$cell_fraction)
+
+
+"breast_batched_decon_long.csv"
+
 
 CF_order <- c("Malignant", "T cells", "Macrophage", "Other")
 CT_order <- c("Tumor", "T cells", "NK", "Macrophage", "Myeloid else", "B cells", "Stroma", "Epithelia")
