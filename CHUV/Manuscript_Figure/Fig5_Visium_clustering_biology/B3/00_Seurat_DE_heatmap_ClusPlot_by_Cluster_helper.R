@@ -2,6 +2,7 @@ seurat_cluster_DE <- function(x,
                               cluster_col="spatial.cluster", 
                               assay_name="logcounts", 
                               n_markers=10, 
+                              logfc.threshold=1, 
                               palette = NULL, 
                               clusters=NULL, 
                               plot = TRUE,
@@ -76,7 +77,7 @@ seurat_cluster_DE <- function(x,
   ## Select top n significant(p<0.05) markers from each cluster (by log fold change)
   all_markers <- Seurat::FindAllMarkers(seurat, assay='Spatial', slot='data',
                                         group.by=cluster_col,
-                                        logfc.threshold=1, 
+                                        logfc.threshold=logfc.threshold, 
                                         only.pos=TRUE,
                                         ...) %>% 
     dplyr::filter(p_val_adj < 0.05) %>%

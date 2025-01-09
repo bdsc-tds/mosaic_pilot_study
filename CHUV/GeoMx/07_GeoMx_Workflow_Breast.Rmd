@@ -10,10 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Load library and path
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
-absolute_path_cur <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/"
-source(paste0(absolute_path_cur, "env/ydong/Owkin_Pilot/Code/GeoMx/Manuscript/GeoMx_init.R"))
-read_path <- paste0(absolute_path_cur, "Owkin_Pilot_Intermediate/GeoMx/GeoMx_test_norm/")
-# save_path <- paste0(absolute_path_cur, "Owkin_Pilot_Intermediate/GeoMx/GeoMx_Final_Qcd/")
+absolute_path_cur <- "/work/PRTNR/CHUV/DIR/rgottar1/"
+source(paste0(absolute_path_cur, "spatial/env/ydong/Owkin_Pilot/Code/GeoMx/Manuscript/GeoMx_init.R"))
+read_path <- paste0(absolute_path_cur, "owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_test_norm/")
+# save_path <- paste0(absolute_path_cur, "owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Final_Qcd/")
 library(ggspavis)
 library(patchwork)
 ```

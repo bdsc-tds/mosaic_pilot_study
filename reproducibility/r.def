@@ -58,3 +58,64 @@ From: rocker/r-base:4.3.2
   # R looking for user libraries in the (system) home folder
   # interferes with some packages (e.g. SeuratDisk).
   export R_LIBS_USER="ignore"
+
+BootStrap: docker
+From: rocker/r-base:4.3.2
+
+%setup
+    mkdir -p ${SINGULARITY_ROOTFS}/opt/_renv/renv
+
+%files
+    metadata/renv.lock /opt/_renv
+    metadata/.Rprofile /opt/_renv
+    metadata/renv/activate.R /opt/_renv/renv
+    metadata/renv/settings.json /opt/_renv/renv
+
+%post
+  # DNS
+  # echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+  sed -i 's/ch.archive.ubuntu.com/en.archive.ubuntu.com/g' /etc/apt/sources.list
+
+  # Force ipv4
+  echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
+
+  apt update
+  apt install -y locales gnupg-agent
+  sed -i '/^#.* en_.*.UTF-8 /s/^#//' /etc/locale.gen
+  sed -i '/^#.* fr_.*.UTF-8 /s/^#//' /etc/locale.gen
+  locale-gen
+
+  # install two helper packages we need
+  apt install -y --no-install-recommends software-properties-common dirmngr
+
+  # Configure tzdata to prevent asking for input
+  export DEBIAN_FRONTEND=noninteractive
+  export TZ="Europe/Zurich"
+  
+  apt install -y r-base-core r-base-dev libglpk-dev libopenblas-dev libcurl4-openssl-dev libomp-dev libopenmpi-dev openmpi-bin openmpi-common openmpi-doc openssh-client openssh-server libssh-dev htop git nano vim cmake gfortran g++ curl wget python-is-python3 autoconf bzip2 libtool libtool-bin python3-pip python-dev-is-python3 libxml2-dev libmagick++-dev libboost-dev libudunits2-dev libgdal-dev libgeos-dev libharfbuzz-dev libfribidi-dev libglu1-mesa
+
+
+  # Required for R kernel for language integration in VS Code
+  apt install -y libzmq3-dev jupyter-client
+
+  # Always useful to have screen
+  apt install -y screen
+
+  # Required for worklowr
+  apt install -y pandoc
+  apt install -y desktop-file-utils
+  apt install -y default-jdk
+
+  # Clean cache to reduce the image size
+  apt clean
+  
+  # Install "renv" for R
+    R -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
+
+  # Install R packages with specific versions recorded by "renv"
+    R -e "renv::restore(lockfile = '/opt/_renv/renv.lock')"
+  
+%environment
+  # R looking for user libraries in the (system) home folder
+  # interferes with some packages (e.g. SeuratDisk).
+  export R_LIBS_USER="ignore"

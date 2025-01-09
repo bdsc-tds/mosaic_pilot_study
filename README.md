@@ -51,7 +51,9 @@ For visualization, the following code links are mapped to the creation of each f
 |  Visium GeoMx Deconvolution Specificity ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig2*)) | Fig. 2 |
 |  Visium GeoMx Registration ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig3_12_Vis_Geo_Mapped)) | Fig. 3 |
 |  Visium Annotation Gallery ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig4_Vis_patho_decon_gallery)) | Fig. 4 |
+|  GeoMx Annotation Gallery ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig4_Vis_patho_decon_gallery)) | Fig. 4 |
 |  Intra-patient heterogeneity in Visium ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig5_Visium_clustering_biology)) | Fig. 5 |
+|  Intra-patient heterogeneity in GeoMx ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig5_Visium_clustering_biology)) | Fig. 5 |
 |  Inter-patient heterogeneity across all technologies ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/Fig6_Three_Tech_Dotplot)) | Fig. 6|
 
 ## Supplementary Figures
@@ -69,8 +71,4 @@ For visualization, the following code links are mapped to the creation of each f
 |  Visium Integrated Annotation ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/tree/main/CHUV/Manuscript_Figure/SuppFig/Visium_Integration)) | Fig. S8 |
 |  Visium Ridge Plot ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/blob/main/CHUV/Manuscript_Figure/Fig6_Three_Tech_Dotplot/visium_prep_level1_5_level4_pt_spec.R)) | Fig. S9 a,b|
 |  GeoMx Ridge Plot ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/blob/main/CHUV/Manuscript_Figure/Fig6_Three_Tech_Dotplot/Geo_dotplot.R)) | Fig. S9 c,d|
-<<<<<<< HEAD
 |  Decon Assisted Inter-patient heterogeneity across all technologies ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/blob/main/CHUV/Manuscript_Figure/Fig6_Three_Tech_Dotplot/e_Three_Tech_Dotplot_with_decon_chrom_level2_vis_level1_5_level4_pt_spec.R)) | Fig. S9 e|
-=======
-|  Decon Assisted Inter-patient heterogeneity across all technologies ([Code](https://github.com/bdsc-tds/mosaic_pilot_study/blob/main/CHUV/Manuscript_Figure/Fig6_Three_Tech_Dotplot/e_Three_Tech_Dotplot_with_decon_chrom_level2_vis_level1_5_level4_pt_spec.R)) | Fig. S9 e|
->>>>>>> 7d4882ad531a8a0f2b38e37f00a3d04b3189c433

@@ -11,10 +11,10 @@ source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/color_p
 sample = "B1_4"
 if(disease == "lung"){patho_color <- lung_patho_color}else{patho_color <- breast_patho_color}
 
-sce_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
+sce_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
 sce <- readRDS(file.path(sce_path, paste0(sample, "_qcd.rds")))
 
-datapath_rerun <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/VisiumRerun/", sample)
+datapath_rerun <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/VisiumRerun/", sample)
 coord_new <- read.csv(file.path(datapath_rerun, "tissue_positions.csv"))
 
 CD <- data.frame(colData(sce))
@@ -40,7 +40,7 @@ sce$Region <- as.factor(sce$Region)
 
 # C2L
 # -------------------------------------------------------------------------
-decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/Level4/C2L"
+decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Visium_Decon/Level4/C2L"
 res_C2L <- read.csv(file.path(decon_path, paste0(sample, ".csv")), row.names = 1)
 res_C2L <- res_C2L %>%
   mutate(Fibroblast = Fibroblast + Fibroblast_B3) %>%
@@ -184,7 +184,7 @@ data_ind <- data %>%
          T_cells = T_CD4 + T_CD8_exhausted + T_CTL + T_CXCL13 + T_reg + TNK_dividing)
 
 # Decon_HE ind - B cell ---------------------------------------------------
-p_decon_ind_Bcells <- p0 + xlim(c(480, 606)) + ylim(c(458, 626)) + 
+p_decon_ind_Bcells <- p0 + # xlim(c(480, 606)) + ylim(c(458, 626)) + 
   ggforce::geom_circle(
     data = data_ind,
     aes(
@@ -208,8 +208,9 @@ p_decon_ind_Bcells <- p0 + xlim(c(480, 606)) + ylim(c(458, 626)) +
   guides(fill = guide_colorbar(title.position = "left", title.hjust = 0.5, direction = "horizontal",
                                barwidth = unit(2.5, "cm"), barheight = unit(0.3, "cm")))
 
-fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig4/B1_cropped"
-pdf(file = file.path(fig_path, paste0(sample, "_decon_ind_HE_Bcell_C2L.pdf")),
+fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig4/B1_cropped"
+# pdf(file = file.path(fig_path, paste0(sample, "_decon_ind_HE_Bcell_C2L.pdf")),
+pdf(file = file.path(fig_path, paste0(sample, "_decon_ind_HE_Bcell_C2L_fullslide.pdf")),
     width = plot_width,
     height = plot_height)
 print(p_decon_ind_Bcells)
@@ -218,7 +219,7 @@ dev.off()
 
 
 # Decon_HE ind - T cell ---------------
-p_decon_ind_Tcells <- p0 + xlim(c(755, 920)) + ylim(c(100, 263)) + 
+p_decon_ind_Tcells <- p0 + # xlim(c(755, 920)) + ylim(c(100, 263)) + 
   ggforce::geom_circle(
     data = data_ind,
     aes(
@@ -242,8 +243,9 @@ p_decon_ind_Tcells <- p0 + xlim(c(755, 920)) + ylim(c(100, 263)) +
   guides(fill = guide_colorbar(title.position = "left", title.hjust = 0.5, direction = "horizontal",
                                barwidth = unit(2.5, "cm"), barheight = unit(0.3, "cm")))
 
-fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig4/B1_cropped"
-pdf(file = file.path(fig_path, paste0(sample, "_decon_ind_HE_Tcell_C2L.pdf")),
+fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig4/B1_cropped"
+# pdf(file = file.path(fig_path, paste0(sample, "_decon_ind_HE_Tcell_C2L.pdf")),
+pdf(file = file.path(fig_path, paste0(sample, "_decon_ind_HE_Tcell_C2L_fullslide.pdf")),
     width = plot_width,
     height = plot_height)
 print(p_decon_ind_Tcells)

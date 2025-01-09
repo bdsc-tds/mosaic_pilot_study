@@ -5,11 +5,11 @@ library(tidyr)
 library(tidyverse)
 library(ggridges)
 
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig6/"
-figpath_ridge <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Fig6_Ridge"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig6/"
+figpath_ridge <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Fig6_Ridge"
 
 # Dot plot ----------------------------------------------------------------
-datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched"
+datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched"
 geo_spe <- readRDS(file.path(datapath, "dlbcl_spe_ruv.rds"))
 geo <- as.Seurat(geo_spe)
 
@@ -45,7 +45,7 @@ dev.off()
 ##########################################################################
 # Introducing GeoMx
 ##########################################################################
-geo_decon_result <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/GeoMx/Final_level1_5_decon_results/dlbcl_batched_decon_long.csv") # not patient specific
+geo_decon_result <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/Final_level1_5_decon_results/dlbcl_batched_decon_long.csv") # not patient specific
 # geo_decon_result <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/GeoMx/Final_level1_5_decon_results_pt_specific/dlbcl_batched_decon_long.csv") # patient specific
 
 

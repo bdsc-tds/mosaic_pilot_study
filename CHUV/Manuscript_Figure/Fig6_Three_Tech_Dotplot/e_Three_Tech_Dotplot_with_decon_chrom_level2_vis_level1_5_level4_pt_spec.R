@@ -6,18 +6,26 @@ library(tidyverse)
 library(ggridges)
 library(patchwork)
 
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig6/"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig6/"
+
+# DLBCLnChromium_Marker_Gene_List <- c(
+#   "MS4A1", "TNFRSF13C", "CD79B", "CD37", "PSMB8", "CD19", "TYMS",
+#   "TUBB", "TOP2A", "POLD4", "CD47", "CD52", "BLK", "CD38", "MAP2K1",
+#   "CD40", "BCL2L1", "TNFRSF8", "SMO", "RARA", "TYK2", "TNFRSF10B"
+# )
 
 DLBCLnChromium_Marker_Gene_List <- c(
-  "MS4A1", "TNFRSF13C", "CD79B", "CD37", "PSMB8", "CD19", "TYMS",
-  "TUBB", "TOP2A", "POLD4", "CD47", "CD52", "BLK", "CD38", "MAP2K1",
-  "CD40", "BCL2L1", "TNFRSF8", "SMO", "RARA", "TYK2", "TNFRSF10B"
-)
+  "MS4A1", "TNFRSF13C", "CD79B", "CD37", "CD19", "BTK",
+  "TUBB",  "CD47", "CD52", "CD38", "MAP2K1",
+  "CD40", "BCL2L1", "TNFRSF8", "RARA", "TYK2", "TNFRSF10B"#,
+  # "MEF2B", "NOP56", "MYO1G", "SEMA7A", "FCRL5",
+  # "FCRL3", "BCL6", "BCL11A", "BCL2L11", "BCL7A"
+  )
 
 CT_order <- c("Epithelia", "Stroma", "B cells", "NK", "Myeloid else",  "Macrophage", "T cells", "Tumor") # Fig 6
 
 # Chromium ----------------------------------------------------------------
-chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
+chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
 chrom <- readRDS(file.path(chrompath, "chrom_dlbcl.rds"))
 
 ## Combine tumor subtypes
@@ -45,7 +53,7 @@ p_chrom <- DotPlot(
 
 
 # Visium ------------------------------------------------------------------
-vispath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/dlbcl/spotclean/Results/"
+vispath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/dlbcl/spotclean/Results/"
 vis_small <- readRDS(file.path(vispath, "Dlbcl-merge-SCTpostSpotClean_small_fig6e_level1_5_level4_pt_spec_C2L.rds"))
 
 Idents(vis_small) <- factor(vis_small$new_annot, levels = c("Epithelia", "Stroma", "B cells", "Myeloid", "T/NK", 
@@ -65,7 +73,7 @@ p_vis <- DotPlot(
 
 
 # GeoMx ----------------------------------------------------------------
-geo <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/dlbcl_seu_ruv.rds")
+geo <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/dlbcl_seu_ruv.rds")
 # head(Idents(geo)) # Levels: T cells Macrophage Other Tu_D1 Tu_D2 Tu_D3 Tu_D4 Tu_D5 Tu_D6
 Idents(geo) <- factor(geo$clusters, levels = c("Other", "Macrophage", "T cells", "Tu_D1", "Tu_D2", "Tu_D3", "Tu_D4", "Tu_D5", "Tu_D6"))
 

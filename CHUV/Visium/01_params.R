@@ -1,14 +1,14 @@
 ## Library
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/00_init.R")
+source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/Visium/00_init.R")
 
 ## Parameters
-save_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/", disease, "_raw/SPE/")
-save_path_seu <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/", disease, "_raw/Seurat/")
+save_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/", disease, "_raw/SPE/")
+save_path_seu <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/", disease, "_raw/Seurat/")
 
-save_path_sptclean <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/", disease, "_raw/SpotCleaned_SPE/")
-save_path_seu_sptclean <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/", disease, "_raw/SpotCleaned_Seurat/")
+save_path_sptclean <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/", disease, "_raw/SpotCleaned_SPE/")
+save_path_seu_sptclean <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/", disease, "_raw/SpotCleaned_Seurat/")
 
-save_path_qcd <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd/")
+save_path_qcd <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd/")
 
 if(disease == "breast"){
   sample_names <- c("B1_2_OPHI", "B1_4_OPHI", "B2_2_1256", "B3_2_1GVR", "B4_2_1FHZ")
@@ -26,8 +26,8 @@ if(disease == "breast"){
   nsamples = 6
 }
 
-baye_savepath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/"
-patho_annopath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/Annotations"
+baye_savepath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/"
+patho_annopath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/Annotations"
 
 
 

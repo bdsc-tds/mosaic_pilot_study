@@ -3,7 +3,7 @@ library(tidyverse)
 library(patchwork)
 
 # Merge in patho annotation ----------------------------------------------
-patho_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium/Annotations/"
+patho_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/Annotations/"
 files_to_read <- list.files(patho_path)
 
 patho_all <- NULL
@@ -21,7 +21,8 @@ table(patho_all$Section)
 
 
 # Use CARD level 4 for now ----------------------------------------------
-vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/Level4/C2L"
+# vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/Level4/CARD"
+vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Visium_Decon/Level4/C2L"
 
 files_to_read <- list.files(vis_decon_path)
 
@@ -32,7 +33,7 @@ for(i in 1:length(files_to_read)){
   
   # if(files_to_read[i] == "B1_2_spot_Level4_decon.csv"){ # CARD
   if(files_to_read[i] == "B1_2.csv"){                     # C2L
-    sce_qcd <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_qcd/breast_qcd/B1_2_qcd.rds")
+    sce_qcd <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/breast_qcd/B1_2_qcd.rds")
     decon_i <- decon_i[decon_i$Barcode %in% sce_qcd$Barcode, ]
   }
   

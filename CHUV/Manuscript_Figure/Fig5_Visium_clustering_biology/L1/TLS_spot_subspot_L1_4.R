@@ -6,7 +6,7 @@ disease = "Lung"
 sample = "L1_4"
 # resolution = "spots"
 # resolution = "subspots"
-read_path = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/", disease, "/", sample)
+read_path = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_BayesSpace_raw/", disease, "/", sample)
 
 # if(resolution == "spot"){ # spot
 sce <- readRDS(file.path(read_path, paste0(sample, "_baye_clustered.rds"))) # spot
@@ -46,7 +46,7 @@ saveFeaturePlots <- function(feature.plots, enhanced.feature.plots, legend, widt
   p1 <- patchwork::wrap_plots(feature.plots, ncol = 4) + plot_layout(guides = "collect") 
   p2 <- patchwork::wrap_plots(enhanced.feature.plots, ncol = 4) + plot_layout(guides = "collect") 
   
-  fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5"
+  fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5"
   pdf(file = file.path(paste0(fig_path, "/L1/"),
                        paste0(sample, "_TLS_subspot_spot_", legend, ".pdf")),
       width = width,

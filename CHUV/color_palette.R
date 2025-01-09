@@ -11,8 +11,8 @@ br_lu_level4_cellnames <- c(
   "TNK_dividing",
   
   "Tu_B1_MUCL1",                      "Tu_B1_MUCL1_necrosis",             "Tu_B1_MUCL1_transcription",        
-  # "Tu_B3_CYP4F8", 
-  "Tu_B3",                            "Tu_B3_necrosis",                   "Tu_B3_NPPC",                       "Tu_B3_PLA2G2A",
+  #"Tu_B3_CYP4F8", 
+  "Tu_B3",                            # "Tu_B3_necrosis",                   "Tu_B3_NPPC",                       "Tu_B3_PLA2G2A",
   "Tu_B4_RHOB",                       "Tu_B2",
   
   "Tu_L1_SFTPB",                      "Tu_L2_FXYD2",                      "Tu_L3_G0S2",                       "Tu_L3_G0S2_immune_signature",
@@ -25,10 +25,10 @@ br_lu_level4_cellcolors <- c(
   
   "#FFC125", "#FF9900", "#FFD700", "#FF8000", "#668B8B", "#79CDCD", "#A0522D", "#4169E1", "#00BFFF", "#009ACD", "#3D59AB", "#87CEFF", "#97FFFF",
   
-  "#A2CD5A", "#00EE76", "#ADFF2F", 
-  # "#EEEE00", 
-  "#D4FF90", "#C9DC84", "#DBE153", "#9FCB00", 
-  "#FFD700", "#66FF66", # Breast
+  "#A2CD5A", "#00EE76", "#ADFF2F", # Breast
+  "#EEEE00", 
+  #"#D4FF90", "#C9DC84", "#DBE153", "#9FCB00", 
+  "#FFD700", "#66FF66", 
   
   "#EEB4B4", "#FFA54F", "#CDAF95", "#CD853F", "#8B4513", "#CD661D", "#F4A460", "#8B2500", # Lung
   "#5A5A5A" # Mix
