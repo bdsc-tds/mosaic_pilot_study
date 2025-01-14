@@ -13,7 +13,7 @@ git clone https://github.com/bdsc-tds/mosaic_pilot_study.git
 ```
 
 # Singularity container
-The computational environment can be recreated by installing the singularity container from the .def file. The R version we use for this workflow is 4.3.2, and renv is used to track specific versions of packages. Please find files related to renv in reproducibility/r/metadata, and use r.def in reproducibility/r to build the corresponding container:
+The computational environment can be recreated by installing the singularity container from the .def file. The R version we use for this workflow is 4.3.2, Bioconductor version 3.18, and renv is used to track specific versions of packages. Please find files related to renv in `/reproducibility/r/metadata`, and use `r.def` in `/reproducibility/r` to build the corresponding container:
 
 ``` bash
 # Note: the current working directory is the root of this repo
@@ -21,11 +21,13 @@ cd reproducibility/r
 singularity build --fakeroot --force /path/to/the/built/container r.def
 ```
 
-Launch the container from your terminal.
+The install time for this container on a regular computer or a computing cluster is approximately 2 hours with 8GB memory size. Launch the container from your terminal.
 
 ``` bash
 singularity shell --bind /scratch,/users,/work /path/to/container/environment.sif
 ```
+
+For Visium deconvolution with cell2location, a separate conda environment was used and can be installed with `/Owkin/C2L_code/env.yml`. 
 
 # Analysis
 The folder structure of this repository is detailed as follow
@@ -39,7 +41,7 @@ The folder structure of this repository is detailed as follow
             └── SuppFig
 ```
 
-The analysis for each technology should be run in sequential order based on the naming of files. For bash files, only scripts titled main_.sh should be submitted as jobs to high computing clusters. Note that path to container should be modified in _.sh files. 
+The analysis for each technology should be run in sequential order based on the naming of files. For bash files, only scripts titled main_.sh should be submitted as jobs to high computing clusters. Note that path to container should be modified in _.sh files. The computing time of each analysis step follows its method. For instance, as detailed in cell2location deconvolution, "a Visium sample with 4039 locations and 10241 genes should take about 17-40 minutes, depending on the computer's GPU hardware".
 
 For visualization, the following code links are mapped to the creation of each figure/supplement figure. 
 
