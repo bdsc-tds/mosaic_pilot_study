@@ -27,7 +27,15 @@ The install time for this container on a regular computer or a computing cluster
 singularity shell --bind /scratch,/users,/work /path/to/container/environment.sif
 ```
 
-For Visium deconvolution with cell2location, a separate conda environment was used and can be installed with `/Owkin/C2L_code/env.yml`. 
+For Visium deconvolution with cell2location, a separate conda environment was used and can be installed with: 
+```bash
+conda env create -f /Owkin/C2L_code/env.yml
+```
+
+Activate the deconvolution environment:
+```bash
+conda activate cell2loc
+```
 
 # Analysis
 The folder structure of this repository is detailed as follow
