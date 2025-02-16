@@ -116,10 +116,12 @@ total_df <- data.frame(
   type = rep("total", 6)
 )
 
-all_df <- rbind(distinct_df, intersect_df, total_df) %>%
-  mutate(group = factor(group, levels = c("blue", "pink")),
-         comb = factor(group, levels = c("Visium", "GeoMx", "Chromium", "vis_geo", "vis_chrom", "geo_chrom", "vis_geo_chrom")),
-         type = factor(group, levels = c("total", "distinct", "intersect")))
+all_df <- rbind(distinct_df, intersect_df, total_df) 
+write.csv(all_df, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5f.csv")
+# %>%
+#   mutate(group = factor(group, levels = c("blue", "pink")),
+#          comb = factor(group, levels = c("Visium", "GeoMx", "Chromium", "vis_geo", "vis_chrom", "geo_chrom", "vis_geo_chrom")),
+#          type = factor(group, levels = c("total", "distinct", "intersect")))
 
 
 # side by side bar plot ---------------------------------------------------

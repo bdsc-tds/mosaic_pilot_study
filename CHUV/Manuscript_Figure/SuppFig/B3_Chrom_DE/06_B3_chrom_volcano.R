@@ -1,4 +1,4 @@
-DE_result <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures/Fig_DE_Volcano/B3_2/chrom_B3_tu_2_clus_markers.csv")
+DE_result <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures/Fig_DE_Volcano/B3_2/archive/chrom_B3_tu_2_clus_markers.csv")
 
 results <- as.data.frame(DE_result)
 
@@ -54,9 +54,10 @@ p <- ggplot(results,
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 20))
 
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9f.csv")
 
 # plot_title = "Chrom_B3_DE_Volcano_NPPC_PLA2G2A.pdf"
-# pdf(file = file.path("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5/B3", plot_title),
+# pdf(file = file.path("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5/B3", plot_title),
 #     width = 10,
 #     height = 10)
 # print(p)

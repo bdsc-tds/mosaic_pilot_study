@@ -8,7 +8,7 @@ library(patchwork)
 disease = "dlbcl"
 
 # After spotclean -----------------------------------------------------
-datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
+datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
 savepath.spotclean = paste0(datapath.spotclean, "/Results")
 UMAP_name = paste0("/", str_to_title(disease), "-UMAP-")
 save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
@@ -127,6 +127,24 @@ Tu_D6 <- c("POU2F2", "CCDC88A", "LENG8", "KLHL6", "TNFRSF13B", "BCL2",
 
 markers <- lapply(list(Tu_D1, Tu_D2, Tu_D3, Tu_D4, Tu_D5, Tu_D6), function(x) x[x %in% rownames(seu)])
 names(markers) <- c("Tu_D1", "Tu_D2", "Tu_D3", "Tu_D4", "Tu_D5", "Tu_D6")
+
+for(i in 1:6){
+  seu <- AddModuleScore(object = seu, 
+                        features = markers[i], 
+                        name = names(markers)[i])
+}
+
+df_save <- data.frame(Tu_D1 = seu$Tu_D11,
+                      Tu_D2 = seu$Tu_D21,
+                      Tu_D3 = seu$Tu_D31,
+                      Tu_D4 = seu$Tu_D41,
+                      Tu_D5 = seu$Tu_D51,
+                      Tu_D6 = seu$Tu_D61,
+                      cluster = seu$seurat_clusters,
+                      seu@reductions$umap@cell.embeddings
+                      )
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS13ae.csv")
+
 UMAP_plots <- purrr::map2(markers, names(markers), function(genelist, genelistname) plot_UMAP_agg_markers(seu, genelist, genelistname))
 plot <- patchwork::wrap_plots(UMAP_plots, ncol=3) + plot_annotation(title = "Aggregated Patient-specific Tumor Marker Expression from DLBCL Chromium", 
                                                                     theme = theme(plot.title = element_text(hjust = 0.5, size = 17, face = "bold")))

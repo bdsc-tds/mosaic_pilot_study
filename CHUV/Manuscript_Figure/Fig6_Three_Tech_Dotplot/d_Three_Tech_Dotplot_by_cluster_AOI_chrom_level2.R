@@ -130,6 +130,11 @@ p_geo_legen <- DotPlot(
   ) + scale_size(range = c(1, 9))
 
 # Stitch plots ------------------------------------------------------------
+
+write.csv(p_chrom$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig6b_chrom.csv")
+write.csv(p_vis$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig6b_vis.csv")
+write.csv(p_geo$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig6b_geo.csv")
+
 p_final <- p_chrom + theme(plot.margin = margin(0, 4, 0, 0.5)) + 
   p_vis + theme(plot.margin = margin(0, 4, 0, 4)) +
   p_geo + theme(plot.margin = margin(0, 0.5, 0, 4)) +

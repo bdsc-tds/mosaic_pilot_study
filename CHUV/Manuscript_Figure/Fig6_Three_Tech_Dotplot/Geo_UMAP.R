@@ -32,6 +32,13 @@ library(Seurat)
 seu_ruv <- as.Seurat(spe_ruv)
 Idents(seu_ruv) <- seu_ruv$clusters
 datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched"
+
+df_save <- data.frame(
+  seu_ruv@reductions$UMAP@cell.embeddings,
+  clus = seu_ruv$clusters
+)
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig6a_geo.csv")
+
 saveRDS(seu_ruv, file.path(datapath, "dlbcl_seu_ruv.rds"))
 
 plot <- DimPlot(seu_ruv, reduction = "UMAP", cols = dlbcl_cluster_color) + NoLegend()

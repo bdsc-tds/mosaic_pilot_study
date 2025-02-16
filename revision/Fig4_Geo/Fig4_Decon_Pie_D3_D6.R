@@ -40,6 +40,8 @@ plot_AOI_pie <- function(roi_df, cf_type){
 
 fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig4_Geo_pie_charts"
 
+write.csv(geo_level4dlbcl, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig4hi_decon_geo.csv")
+
 # D3 -------------------------------------------------------
 geo_level4dlbcl_D3 <- geo_level4dlbcl %>%
   filter(sample %in% CD_D3_roi$sample_id2) %>% # "DSP-1001250001495-E-D08" "DSP-1001250001495-E-D09" "DSP-1001250001495-E-D10"

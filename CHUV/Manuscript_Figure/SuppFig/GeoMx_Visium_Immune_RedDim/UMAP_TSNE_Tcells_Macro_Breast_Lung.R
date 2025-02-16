@@ -3,7 +3,7 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(Seurat)
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
+# source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
 
 # helper ------------------------------------------------------------------
 plotCTFracDimRed <- function(seu, feat_name = "Macrophage_frac", 
@@ -24,11 +24,11 @@ plotCTFracDimRed <- function(seu, feat_name = "Macrophage_frac",
 
 # Read Data ----------------------------------------------------------------
 
-disease_list <- c("breast", "lung")
+disease_list <- c("breast", "lung", "dlbcl")
 
 for(disease in disease_list){
   ## Geo
-  datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
+  datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
   spe_ruv <- readRDS(file.path(datapath, paste0(disease, "_spe_ruv.rds")))
   if(class(assay(spe_ruv, "logcounts"))[1] != "dgCMatrix"){assay(spe_ruv, "logcounts") <- as(as.matrix(assay(spe_ruv, "logcounts")), "dgCMatrix")}
   seu_ruv <- as.Seurat(spe_ruv)
@@ -36,7 +36,7 @@ for(disease in disease_list){
   seu_ruv$cell_fraction_Macrophage <- factor(ifelse(seu_ruv$cell_fraction == "Macro", "Macrophage", "Not Macrophage"), levels = c( "Not Macrophage", "Macrophage"))
   
   ## Vis
-  datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
+  datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
   savepath.spotclean = paste0(datapath.spotclean, "/Results")
   save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
   seu <- readRDS(paste0(savepath.spotclean, save_rds_name))
@@ -53,7 +53,38 @@ for(disease in disease_list){
   p3 <- plotCTFracDimRed(seu, feat_name = "Tcells_frac",  pt.size = 0.3, col_vec = c("#F0F0F0", "blue", "darkblue")) 
   p4 <- plotCTFracDimRed(seu, feat_name = "Macrophage_frac",  pt.size = 0.3, col_vec = c("#F0F0F0","purple", "#301934"))
   
+  ## Save Source Data
+  df_geo <- data.frame(
+    seu_ruv@reductions$TSNE@cell.embeddings,
+    Tcells_frac = seu_ruv$Tcells_frac,
+    Macrophage_frac = seu_ruv$Macrophage_frac,
+    cell_fraction_Tcells = seu_ruv$cell_fraction_Tcells,
+    cell_fraction_Macrophage = seu_ruv$cell_fraction_Macrophage,
+    indication = disease
+  )
   
+  df_geo_breast <- df_geo
+  df_geo_lung <- df_geo
+  df_geo_dlbcl <- df_geo
+  
+  df_vis <- data.frame(
+    seu@reductions$umap@cell.embeddings,
+    Tcells_frac = seu$Tcells_frac,
+    Macrophage_frac = seu$Macrophage_frac,
+    indication = disease
+  )
+  
+  df_vis_breast <- df_vis
+  df_vis_lung <- df_vis
+  df_vis_dlbcl <- df_vis
+
+  write.csv(rbind(df_geo_breast, df_geo_lung, df_geo_dlbcl), 
+            "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS7d.csv")
+  
+  write.csv(rbind(df_vis_breast, df_vis_lung, df_vis_dlbcl), 
+            "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS7c.csv")
+  
+ ## Plot 
   p_indication_geo <- p1 + theme(plot.margin = unit(c(0, 0.5, 0, 0), "cm")) | 
     p2 + theme(plot.margin = unit(c(0, 0, 0, 0.5), "cm"))
   
@@ -68,6 +99,8 @@ p_breast_geo
 p_lung_geo
 p_breast_vis
 p_lung_vis
+
+
 
 
 # -------------------------------------------------------------------------

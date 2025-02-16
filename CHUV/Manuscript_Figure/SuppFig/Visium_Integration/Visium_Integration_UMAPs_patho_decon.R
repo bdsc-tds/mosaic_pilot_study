@@ -56,3 +56,30 @@ pdf(file.path(figpath, "Visium_UMAP_Patho_Decon.pdf"), width = 26, height = 40)
 print(p_combined)
 dev.off()
 
+
+# Save Source Data --------------------------------------------------------
+read_and_df <- function(savepath, save_rds_name){
+  seu <- readRDS(paste0(savepath, save_rds_name))
+  df <- data.frame(
+    seu@reductions$umap@cell.embeddings,
+    Region = seu$Region,
+    Level4_decon_max = seu$Level4_decon_max
+  )
+  return(df)
+}
+
+for(disease in disease_list){
+  datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
+  savepath.spotclean = paste0(datapath.spotclean, "/Results")
+  save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
+  savepath = savepath.spotclean
+  
+  df <- read_and_df(savepath, save_rds_name)
+  assign(paste0("df_", disease), df)
+}
+
+write.csv(df_breast, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS11ab.csv")
+write.csv(df_lung, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS11cd.csv")
+write.csv(df_dlbcl, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS11ef.csv")
+
+

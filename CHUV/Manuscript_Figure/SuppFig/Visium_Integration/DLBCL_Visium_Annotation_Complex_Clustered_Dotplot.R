@@ -13,7 +13,7 @@ library(circlize)
 disease = "dlbcl"
 
 # After spotclean -------------------------------------------------------
-datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
+datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
 savepath.spotclean = paste0(datapath.spotclean, "/Results")
 save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
 savepath = savepath.spotclean
@@ -53,6 +53,29 @@ p
 # Pull the data from a ggplot object --------------------------------------
 df<- p$data
 head(df)
+
+df_clus_grp <- data.frame(
+  annot = seu$annot,
+  id = seu$seurat_clusters
+  ) %>%
+  unique()
+
+Plasma = c("IGKC", "IGHG3", "JCHAIN", "IGHG1")
+Epithelium = c("MUCL3", "LCN2", "TFF1", "MUC5AC")
+Stroma = c("THBS1", "POSTN", "COL3A1", "COL1A2", "COL1A1") 
+Vessels = c("ACKR1", "MEOX2", "CCL14", "TSPAN7", "PLA1A", "VWF", "GIMAP4") 
+Immune_cells = c("CD4", "CD28", "CD68", "CD163", "CD14", "SIRPA")
+
+df_save <- df %>%
+  left_join(df_clus_grp) %>%
+  mutate(gene_grp = case_when(features.plot %in% Plasma ~ "Plasma",
+                              features.plot %in% Epithelium ~ "Epithelium",
+                              features.plot %in% Stroma ~ "Stroma",
+                              features.plot %in% Vessels ~ "Vessels",
+                              features.plot %in% Immune_cells ~ "Immune cells"
+                              ))
+
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS13d.csv")
 
 
 ### the matrix for the scaled expression ---------------------------------- 

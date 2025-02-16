@@ -94,6 +94,10 @@ p_geo <- DotPlot(
 p_geo_ <- p_geo + scale_size(range = c(1, 8))
 
 # Stitch plots ------------------------------------------------------------
+write.csv(p_chrom$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15e_chrom.csv")
+write.csv(p_vis$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15e_vis.csv")
+write.csv(p_geo$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15e_geo.csv")
+
 p_final <- p_chrom + theme(plot.margin = margin(0, 4, 0, 0.5)) + 
   p_vis + theme(plot.margin = margin(0, 4, 0, 4)) +
   p_geo_ + theme(plot.margin = margin(0, 0.5, 0, 4)) +

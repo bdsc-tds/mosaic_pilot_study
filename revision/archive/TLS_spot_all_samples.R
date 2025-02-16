@@ -5,7 +5,7 @@ library(ggplot2)
 # disease = "DLBCL"
 # sample = "DLBCL_6"
 disease = "Lung"
-sample = "L4_2"
+sample = "L1_4"
 # disease = "Breast"
 # sample = "B4_2"
 # resolution = "spots"
@@ -25,10 +25,10 @@ sce_enhanced <- readRDS(file.path(read_path, paste0(sample, "_baye_clustered_all
 dim(rowData(sce_enhanced))
 
 # -------------------------------------------------------------------------
-# markers <- c("MS4A1", 
-#              "CXCL13", 
-#              "CXCR5", 
-#              "CCL19")
+markers <- c("MS4A1",
+             "CXCL13",
+             "CXCR5",
+             "CCL19")
 
 # markers <- c("CD14", "CD68", "CSF1R", "ITGAM",# Marcrophage
 #              "CD80", "CD86", "IL1B", # M1
@@ -37,6 +37,18 @@ dim(rowData(sce_enhanced))
 markers <- c("MS4A1", "CXCL13", # B cells
              "CD3D", "CD4",     # T cells
              "CD14", "CD68", "CD163") # Marcrophage
+
+df_save <- data.frame(as.data.frame(t(assay(sce, "log1p")[markers, ])),
+                      x = sce$array_col,
+                      y = sce$array_row)
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5a_vis.csv")
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9b_vis.csv")
+
+df_save <- data.frame(as.data.frame(t(assay(sce_enhanced, "log1p")[markers, ])),
+                      x = sce_enhanced$array_col,
+                      y = sce_enhanced$array_row)
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5a_vis_enhanced.csv")
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9b_vis_enhanced.csv")
 
 plot_expression <- function(sce_obj = sce, marker = "CD4"){
   featurePlot(sce_obj, marker, assay.type = "log1p", color=NA) +

@@ -6,7 +6,7 @@ library(tidyverse)
 library(ggridges)
 library(patchwork)
 
-figpath_ridge <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Fig6_Ridge"
+figpath_ridge <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Fig6_Ridge"
 
 DLBCLnChromium_Marker_Gene_List <- c(
   "MS4A1", "TNFRSF13C", "CD79B", "CD37", "PSMB8", "CD19", "TYMS",
@@ -14,7 +14,7 @@ DLBCLnChromium_Marker_Gene_List <- c(
   "CD40", "BCL2L1", "TNFRSF8", "SMO", "RARA", "TYK2", "TNFRSF10B"
 )
 
-vispath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/dlbcl/spotclean/Results/"
+vispath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/dlbcl/spotclean/Results/"
 vis <- readRDS(file.path(vispath, "Dlbcl-merge-SCTpostSpotClean.rds"))
 
 
@@ -26,7 +26,7 @@ vis <- readRDS(file.path(vispath, "Dlbcl-merge-SCTpostSpotClean.rds"))
 # "Tu_D5" = "Tu_D5_CCL22";
 # "Tu_D6" = "Tu_D6_BCL2"
 
-decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/Level4/C2L"
+decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Visium_Decon/Level4/C2L"
 
 max_tumerged_all <- NULL
 for(i in 1:6){
@@ -52,7 +52,7 @@ for(i in 1:6){
     dplyr::rename(Barcode = X) %>%
     group_by(Barcode) %>%
     arrange(desc(Fraction), .by_group = TRUE) %>%
-    slice(1) %>%               # majority voted cell type per spot
+    dplyr::slice(1) %>%               # majority voted cell type per spot
     ungroup()
   decon_result_tumerged$CellType <- ifelse(decon_result_tumerged$CellType == "Tu_D", paste0("Tu_D", i),
                                            decon_result_tumerged$CellType)
@@ -124,6 +124,8 @@ p <- ggplot(max_tumerged_all,
   theme(legend.position = "none") + 
   scale_fill_manual(values = palette_ridge)
 
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15a.csv")
+
 sample_size_df <- data.frame(table(max_tumerged_all$CellType)) %>%
   dplyr::rename(n = Freq,
                 ylabel = Var1) %>%
@@ -156,6 +158,8 @@ p <- ggplot(max_tumerged_all_50,
   theme(legend.position = "none",
     plot.margin = margin(1, 1, 0, 0, "cm")) + 
   scale_fill_manual(values = palette_ridge)
+
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15b.csv")
 
 sample_size_df <- data.frame(table(max_tumerged_all_50$CellType)) %>%
   dplyr::rename(n = Freq,

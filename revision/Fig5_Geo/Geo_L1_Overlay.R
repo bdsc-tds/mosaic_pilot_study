@@ -76,6 +76,8 @@ expr_df <- data.frame(MS4A1 = countmat["MS4A1", ],
                       CCL19 = countmat["CCL19", ],
                       Sample_ID = geo_L1_1$sample_id2)
 
+write.csv(expr_df, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5a_geo.csv")
+
 LS_read_new <- annots %>%
   left_join(expr_df)
 
@@ -96,6 +98,10 @@ data_ind <- data %>%
   select(sample, section_id, cell_fraction, B_cells, T_cells) %>%
   dplyr::rename(Sample_ID = sample)
 
+df_save <- data_ind %>% 
+  select(c(B_cells, T_cells, cell_fraction))
+
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9a.csv")
 # viridis::scale_fill_viridis(option="inferno") + 
 
 LS_read_new <- LS_read_new %>%

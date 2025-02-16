@@ -11,34 +11,44 @@ library(patchwork)
 library(standR)
 library(enrichR)
 
-# ###########################################################################
-# # UMAP --------------------------------------------------------------------
-# geo_all <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/breast_spe_ruv.rds")
-# # subset to only B3_1 malig
-# geo <- geo_all[, geo_all$section_id == "B3_1" & geo_all$cell_fraction == "Malignant"]
-# 
-# ## Quantile Norm
-# assays(geo, withDimnames=FALSE)$quantile <- preprocessCore::normalize.quantiles(assay(geo, "log1p"))
-# assays(geo)
-# 
-# assay = 8
-# which.assay = "quantile"
-# 
-# set.seed(100)
-# geo <- scater::runPCA(geo, assay.type = which.assay, ncomponents = 11)
-# set.seed(500)
-# geo <- scater::runUMAP(geo, dimred = "PCA")
-# 
-# p <- plotDimRed(geo, type = "UMAP", annotate = "malig_sub", text_by = "malig_sub", pt.size = 2) 
-# p
-# 
-# figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig5_Geo_B3"
-# plot_title = "Geo_B3_DE_UMAP.pdf"
-# pdf(file = file.path(figpath, plot_title),
-#     width = 13,
-#     height = 4)
-# print(p)
-# dev.off()
+###########################################################################
+# UMAP --------------------------------------------------------------------
+geo_all <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/breast_spe_ruv.rds")
+# subset to only B3_1 malig
+geo <- geo_all[, geo_all$section_id == "B3_1" #& geo_all$cell_fraction == "Malignant"
+               ]
+
+saveRDS(geo, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5_geo.rds")
+
+## Quantile Norm
+assays(geo, withDimnames=FALSE)$quantile <- preprocessCore::normalize.quantiles(assay(geo, "log1p"))
+assays(geo)
+
+assay = 8
+which.assay = "quantile"
+
+set.seed(100)
+geo <- scater::runPCA(geo, assay.type = which.assay, ncomponents = 11)
+set.seed(500)
+geo <- scater::runUMAP(geo, dimred = "PCA")
+
+p <- plotDimRed(geo, type = "UMAP", annotate = "malig_sub", text_by = "malig_sub", pt.size = 2)
+p
+
+df_save <- data.frame(
+  reducedDim(geo, "UMAP"),
+  geo$malig_sub
+)
+write.csv(df_save, 
+          "~/Desktop/Owkin_Manuscript_Review/Re-submission/Re-submission2/SourceData_prep/Fig5c_dim.csv")
+
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig5_Geo_B3"
+plot_title = "Geo_B3_DE_UMAP.pdf"
+pdf(file = file.path(figpath, plot_title),
+    width = 13,
+    height = 4)
+print(p)
+dev.off()
 
 ###########################################################################
 # Prep dataset for DE between malig subtypes only --------------------------

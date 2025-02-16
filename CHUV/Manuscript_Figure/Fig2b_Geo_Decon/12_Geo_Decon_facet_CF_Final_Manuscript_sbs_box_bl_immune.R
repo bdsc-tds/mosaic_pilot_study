@@ -1,6 +1,6 @@
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig2"
-deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig2"
+deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
 
 deconpath = deconresultpath; plot_title = "Geo_breast_lung_decon_sbs_box_outline_color_immune_ylim01.pdf"
 
@@ -78,6 +78,8 @@ p_breast_lung <- (p1 + theme(plot.margin = unit(c(0,20,0,10), "pt"))) |
   (p4 + theme(plot.margin = unit(c(0, 10 ,0,0), "pt"))) 
 p_breast_lung
 
+write.csv(gathered_df_breast_lung, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig2b_geo_breast_lung.csv")
 
 # DLBCL -------------------------------------------------------------------
 gathered_df_dlbcl <- read.csv(file.path(deconpath, "dlbcl_batched_decon_long.csv"))
@@ -108,6 +110,9 @@ p_dlbcl <- (p5 + theme(plot.margin = unit(c(10,20,0,10), "pt"))) |
   (p7 + theme(plot.margin = unit(c(10,20,0,0), "pt"))) | 
   (p8 + theme(plot.margin = unit(c(10, 10 ,0,0), "pt"))) 
 p_dlbcl
+
+write.csv(gathered_df_dlbcl, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig2b_geo_dlbcl.csv")
 
 p_geo_decon <- p_breast_lung / 
   p_dlbcl 

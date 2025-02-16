@@ -17,14 +17,61 @@ if(disease == "breast"){
 }
 
 foldername <- ifelse(disease == "dlbcl", "DLBCL", str_to_title(disease))
-regis_savepath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Registration/"
-plot_savepath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Breast_Lung_patho"
+regis_savepath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Registration/"
+plot_savepath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Breast_Lung_patho"
 
 
 # Read in SCE -------------------------------------------------------------
 sample = "B1_2"
-sce_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
+sce_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
 sce <- readRDS(file.path(sce_path, paste0(sample, "_qcd.rds")))
+
+samples <- c(c("B1_2", "B1_4", "B2_2", "B3_2", "B4_2"), c("L1_2", "L2_2", "L3_2", "L4_2"))
+diseases <- c(rep("breast", 5), rep("lung", 4))
+df_save_all <- data.frame(matrix(nrow = 0, ncol = 8)) 
+names(df_save_all) <- c("barcode", "x_coord", "y_coord", "Region", "Level4_decon_max", 
+                        "sample", "matched_spots", "cell_fraction")
+for(i in 1:length(samples)){
+  sce_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", diseases[i], "_qcd")
+  sce <- readRDS(file.path(sce_path, paste0(samples[i], "_qcd.rds")))
+  sce_mapped <- readRDS(file.path(paste0(regis_savepath, "/Visium_mapped_spot_obj"), paste0(samples[i], "_mapped_spot.rds"))) # spot
+  df_mapped <- data.frame(barcode = sce_mapped$barcode,
+                          matched_spots = sce_mapped$matched_spots,
+                          cell_fraction = sce_mapped$Cell_fraction)
+  
+  df_save <- data.frame(barcode = sce$Barcode,
+                        x_coord = sce$array_col, 
+                        y_coord = sce$array_row,
+                        Region = sce$Region,
+                        Level4_decon_max = sce$Level4_decon_max,
+                        sample = samples[i]) %>%
+    inner_join(df_mapped)
+  
+  df_save_all <- rbind(df_save_all, df_save)
+}
+
+write.csv(df_save_all, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS6bcd.csv")
+
+
+samples <- c("DLBCL_1", "DLBCL_2", "DLBCL_3", "DLBCL_4", "DLBCL_5", "DLBCL_6")
+diseases <- c(rep("dlbcl", 6))
+df_save_all <- data.frame(matrix(nrow = 0, ncol = 6)) 
+names(df_save_all) <- c("barcode", "x_coord", "y_coord", "Region", "Level4_decon_max", "sample")
+for(i in 1:length(samples)){
+  sce_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", diseases[i], "_qcd")
+  sce <- readRDS(file.path(sce_path, paste0(samples[i], "_qcd.rds")))
+  
+  df_save <- data.frame(barcode = sce$Barcode,
+                        x_coord = sce$array_col, 
+                        y_coord = sce$array_row,
+                        Region = sce$Region,
+                        Level4_decon_max = sce$Level4_decon_max,
+                        sample = samples[i])
+  
+  df_save_all <- rbind(df_save_all, df_save)
+}
+
+write.csv(df_save_all, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS7ab.csv")
 
 y_rev = ifelse(sample == "B1_4", FALSE, TRUE)
 # Patho plot --------------------------------------------------------------

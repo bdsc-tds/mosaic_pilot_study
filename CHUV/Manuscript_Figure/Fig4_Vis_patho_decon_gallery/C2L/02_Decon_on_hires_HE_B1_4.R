@@ -6,8 +6,8 @@ library(stringr)
 
 disease = "breast"
 foldername <- ifelse(disease == "dlbcl", "DLBCL", str_to_title(disease))
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/color_palette.R")
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/Visium/01_params.R")
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/color_palette.R")
 sample = "B1_4"
 if(disease == "lung"){patho_color <- lung_patho_color}else{patho_color <- breast_patho_color}
 
@@ -61,6 +61,7 @@ ct.select = colnames(res_C2L)
 colors = level4_cellcolors[names(level4_cellcolors) %in% sort(colnames(res_C2L))]
 radius <- scalef$spot_diameter_fullres * scalef$tissue_hires_scalef / 1.7
 
+write.csv(data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig4bg_decon_vis.csv")
 
 ########################### Decon HE full slide #########################
 p0 <- ggplot(

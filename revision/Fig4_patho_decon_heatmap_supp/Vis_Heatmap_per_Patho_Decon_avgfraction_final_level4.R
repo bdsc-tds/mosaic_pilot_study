@@ -95,6 +95,9 @@ p_final <- p_breast_patho_decon | p_lung_patho_decon | p_dlbcl_patho_decon +
         legend.title = element_text(size = 10))
 p_final
 
+df_FigS8a <- rbind(breast_decon_patho, lung_decon_patho, dlbcl_decon_patho)
+write.csv(df_FigS8a, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS8a_patho_decon_vis.csv")
+
 fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig4_Geo_Vis_Heatmap/SuppFig"
 pdf(file.path(fig_path, "Vis_Patho_Decon_Heatmap_level4.pdf"), width = 22, height = 13)
 print(p_final)

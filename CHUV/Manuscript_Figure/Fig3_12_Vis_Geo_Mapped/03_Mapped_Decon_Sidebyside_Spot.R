@@ -2,7 +2,7 @@ library(ggplot2)
 library(dplyr)
 library(stringr)
 
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig3"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig3"
 
 
 # deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/GeoMx/Final_level1_5_decon_results_pt_specific"
@@ -14,7 +14,7 @@ figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript
 
 # Only breast and lung ----------------------------------------------------
 # Mapped spot and AOI IDs (spot)
-mapped_geo_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Registration/GeoMx_mapped_spot_LW"
+mapped_geo_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Registration/GeoMx_mapped_spot_LW"
 geo_samples <- c("B1_1", "B1_3", "B2_1", "B3_1", "B4_1", "L1_1", "L2_1", "L3_3", "L4_1")
 vis_samples <- c("B1_2", "B1_4", "B2_2", "B3_2", "B4_2", "L1_2", "L2_2", "L3_2", "L4_2")
 disease_list <- c(rep("breast", 5), rep("lung", 4))
@@ -42,11 +42,11 @@ disease_list <- c(rep("breast", 5), rep("lung", 4))
 
 
 # -------------------------------------------------------------------------
-mapped_all <- read.csv(file.path("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Registration", "spot_mapped_cf_region.csv"))
+mapped_all <- read.csv(file.path("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Registration", "spot_mapped_cf_region.csv"))
 
 # Geo decon results (spot)
 # geo_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/GeoMx/Final_level1_5_decon_results"
-deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
+deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/For_level1_5_immune_decon_results"
 
 geo_decon <- rbind(read.csv(file.path(deconresultpath, "breast_batched_decon_long.csv")),
                    read.csv(file.path(deconresultpath, "lung_batched_decon_long.csv"))
@@ -89,7 +89,7 @@ geo_decon_mapped$cell_fraction = ifelse(geo_decon_mapped$cell_fraction == "Macro
 # vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/Manuscript_Figures/RCTD_vis_long" # RCTD - level 1.5 immune
 # vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/AggLevel4/RCTD/level1_5_immune_long" # RCTD - level 4 combined to level 1.5 immunne 
 # vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/AggLevel4/RCTD_DEgenes/level1_5_immune_long" # RCTD - level 4 DEgenes combined to level 1.5 immunne 
-vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/AggLevel4/C2L/level1_5_immune_long" # C2L - level 4 combined to level 1.5 immunne 
+vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Visium_Decon/AggLevel4/C2L/level1_5_immune_long" # C2L - level 4 combined to level 1.5 immunne 
 # vis_decon_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Visium_Decon/AggLevel4/C2L_DEgenes/level1_5_immune_long" # C2L - level 4 DEgenes combined to level 1.5 immunne 
 decon_patho_gather_breast <- read.csv(file.path(vis_decon_path, "vis_breast_decon_immune_long.csv"))
 decon_patho_gather_lung <- read.csv(file.path(vis_decon_path, "vis_lung_decon_immune_long.csv"))
@@ -249,6 +249,9 @@ p <- ggplot(vis_geo_spot_decon, aes(x=CellType, y=Fraction, fill= Platform)) +
                      strip = strip_themed(background_x = elem_list_rect(color = facet_colors,
                                                                         fill = facet_fills)),
                      ncol = 4)
+
+write.csv(vis_geo_spot_decon, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig3c.csv")
 
 library(rstatix)
 stat.test <- vis_geo_spot_decon %>%

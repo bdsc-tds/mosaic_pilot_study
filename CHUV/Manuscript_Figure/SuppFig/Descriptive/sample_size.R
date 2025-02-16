@@ -62,6 +62,10 @@ names(geo_palette) <- geo_df$sample
 geo_df$sample <- factor(geo_df$sample, levels = geo_sample_order)
 
 
+write.csv(chrom_df, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS2a.csv")     
+write.csv(vis_df, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS2b.csv")  
+write.csv(geo_df, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS2d.csv")  
+
 # -------------------------------------------------------------------------
 plot_bar_each_indication <- function(plt_df, lung_dodge, dlbcl_dodge, facet_gap){
   bar_width <- 0.8

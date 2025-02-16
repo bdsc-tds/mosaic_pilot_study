@@ -1,5 +1,5 @@
 # Chromium -----------------------------------------------------------------
-chrom_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
+chrom_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
 
 chrom_breast_qcd <- readRDS(file.path(chrom_path, "chrom_breast.rds"))
 chrom_lung_qcd <- readRDS(file.path(chrom_path, "chrom_lung.rds"))
@@ -12,7 +12,7 @@ chrom_B3 <- chrom_breast_qcd[, chrom_breast_qcd$patient == "B3"]
 chrom_B3 <- SCTransform(chrom_B3, assay = "SoupX")
 chrom_B3 <- RunPCA(object = chrom_B3, assay = "SCT", npcs = 50)
 chrom_B3 <- FindNeighbors(object = chrom_B3, assay = "SCT", reduction = "pca", dims = 1:50)
-chrom_B3 <- FindClusters(object = chrom_B3, resolution = 0.4)
+chrom_B3 <- FindClusters(object = chrom_B3, resolution = 0.1)
 chrom_B3 = RunUMAP(object = chrom_B3, assay = "SCT", reduction = "pca", dims = 1:50)
 
 DimPlot(chrom_B3, group.by = "seurat_clusters") |

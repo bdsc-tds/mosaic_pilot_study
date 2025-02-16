@@ -102,6 +102,8 @@ expr_df <- data.frame(MS4A1 = countmat["MS4A1", ], # TLS B cells
                       CD163 = countmat["CD163", ], # M2
                       Sample_ID = geo_L4_3$sample_id2)
 
+write.csv(expr_df, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9b_geo.csv")
+
 LS_read_new <- annots %>%
   left_join(expr_df)
 
@@ -126,6 +128,11 @@ data_ind <- data %>%
          Myeloid_else = DC_1 + DC_2 + DC_activated + DC_pc + Granulocyte + Mast_cell) %>%
   select(sample, section_id, cell_fraction, B_cells, T_cells, NK, Macrophage, Myeloid_else) %>%
   dplyr::rename(Sample_ID = sample)
+
+df_save <- data_ind %>% 
+  select(c(B_cells, T_cells, Macrophage, cell_fraction))
+
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9c.csv")
 
 # viridis::scale_fill_viridis(option="inferno") + 
 

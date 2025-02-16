@@ -9,15 +9,15 @@ geo_level4breast <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pi
 
 # Color
 disease = "breast"
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/color_palette.R")
-colors = level4_cellcolors[names(level4_cellcolors) %in% sort(geo_level4breast_B1_Bcell_ROI$CellType)]
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/color_palette.R")
+# colors = level4_cellcolors[names(level4_cellcolors) %in% sort(geo_level4breast_B1_Bcell_ROI$CellType)]
 
 # Plot function
 plot_AOI_pie <- function(roi_df, cf_type){
   p <- ggplot(roi_df[roi_df$cell_fraction == cf_type, ], 
               aes(fill=CellType, y=Fraction, x="")) + 
     geom_bar(position="fill", stat="identity") +
-    scale_fill_manual(values =  colors) +
+    # scale_fill_manual(values = colors) +
     coord_polar("y", start=0) + 
     theme_void() + 
     theme(legend.position="none")
@@ -35,13 +35,11 @@ geo <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermedia
 geo_raw <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/GeoMx/breast_raw/B1_3_OPHI.rds") # 24
 table(geo_raw$segment)
 # CD3+ CD68+   CK+ Other 
-# 5     4     6     9 
+# 7     3     6     8 
 table(geo_raw$Cell_fraction)
 # Macro Malignant     Other    PanCK-   T_cells 
-# 4         6         5         4         5 
+# 3         6         4         4         7
 table(geo_raw$roi)
-# A_Islet_2     A_Islet_4 A_Islet_TME_1 A_Islet_TME_2 A_Islet_TME_3 A_Islet_TME_4       A_TME_2       A_TME_4       A_TME_7 
-# 3             4             2             2             2             2             3             3             3 
 
 # Stacked bar plot for all 24 AOIs
 geo_level4breast_B1_3 <- geo_level4breast %>%
@@ -75,6 +73,7 @@ p <- ggplot(geo_level4breast_B1_3_merged, aes(fill=CellType, y=Fraction, x=sampl
   coord_flip() + 
   theme_minimal()
 
+write.csv(geo_level4breast_B1_3_merged, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig4bg_decon_vis.csv")
 
 ######################################################################
 # B1_3 (roi 1) -------------------------------------------------------
@@ -114,7 +113,7 @@ pdf(file = file.path(fig_path, "B1_3_roi2.pdf"),
 print(p_B1_3_roi2_pies)
 dev.off()
 
-
+write.csv(geo_level4breast, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig4dg_decon_geo.csv") 
 
 # B1_3 (roi3) ---------------------------------------------------------------
 geo_level4breast_B1_roi3 <- geo_level4breast %>%
