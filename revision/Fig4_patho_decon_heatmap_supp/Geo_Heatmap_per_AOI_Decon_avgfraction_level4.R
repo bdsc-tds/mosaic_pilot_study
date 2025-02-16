@@ -1,4 +1,4 @@
-source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
+# source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/GeoMx/GeoMx_init.R")
 deconresultpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/GeoMx/Final_level4_decon_results_pt_specific/"
 
 # -------------------------------------------------------------------------
@@ -62,6 +62,12 @@ p_final <- p_breast_patho_decon | p_lung_patho_decon | p_dlbcl_patho_decon +
         legend.text = element_text(size = 8),        
         legend.title = element_text(size = 10))
 p_final
+
+colnames(gathered_df_dlbcl)[colnames(gathered_df_dlbcl) == "patient"] <- "section_id"
+df_FigS8b <- rbind(gathered_df_breast %>% filter(cell_fraction != "PanCK-"),
+                  gathered_df_lung %>% filter(cell_fraction != "PanCK-"),
+                  gathered_df_dlbcl %>% filter(cell_fraction != "PanCK-"))
+write.csv(df_FigS8b, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS8b_patho_decon_geo.csv")
 
 fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig4_Geo_Vis_Heatmap/SuppFig"
 pdf(file = file.path(fig_path, "Geo_AOI_Decon_Heatmap_level4.pdf"),

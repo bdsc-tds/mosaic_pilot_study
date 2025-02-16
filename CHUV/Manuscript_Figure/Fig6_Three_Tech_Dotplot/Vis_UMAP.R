@@ -6,7 +6,7 @@ library(dplyr)
 disease = "dlbcl"
 
 # After spotclean -----------------------------------------------------
-datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
+datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
 savepath.spotclean = paste0(datapath.spotclean, "/Results")
 UMAP_name = paste0("/", str_to_title(disease), "-UMAP-")
 save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
@@ -25,6 +25,14 @@ vis$annot <- case_when(vis$seurat_clusters == "0" ~ "Tu_D1",
                        vis$seurat_clusters %in% c("2", "12", "14", "16") ~ "Necrosis",
                        vis$seurat_clusters %in% c("9", "10", "13") ~ "Plasma",
                        vis$seurat_clusters == "7" ~ "Vessels/Immune")
+
+
+df_save <- data.frame(
+  vis@reductions$umap@cell.embeddings,
+  clus = vis$annot
+)
+
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig6a_vis.csv")
 
 Idents(vis) <- vis$annot
 p <- DimPlot(vis) + labs(y= "UMAP_2", x = "UMAP_1") + 

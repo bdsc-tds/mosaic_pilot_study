@@ -92,6 +92,8 @@ plot_AOI_pie <- function(roi_df, cf_type){
 fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig5_Geo_B3"
 
 
+write.csv(geo_level4breast_B3_ROI_plot, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5c_decon.csv")
+
 ######################################################################
 # B3 (roi 1) -------------------------------------------------------
 geo_level4breast_B3_roi1 <- geo_level4breast_B3_ROI_plot %>%  

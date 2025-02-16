@@ -6,11 +6,11 @@ library(dplyr)
 disease = "dlbcl"
 
 # After spotclean -----------------------------------------------------
-datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
+datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean")
 savepath.spotclean = paste0(datapath.spotclean, "/Results")
 UMAP_name = paste0("/", str_to_title(disease), "-UMAP-")
 save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Visium_Integration_UMAP_Heatmap"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Visium_Integration_UMAP_Heatmap"
 
 
 # Better plots for SCT before and after spotclean -----------------------
@@ -108,6 +108,8 @@ p <- ggplot(df2_, aes(x = cluster, y = patient, fill = per)) +
                                barwidth = unit(23, "cm"), barheight = unit(0.5, "cm")))
 p
 
+write.csv(df2_, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS13b.csv")
+
 pdf(file.path(figpath, "/DLBCL_Vis_Pt_Clus_Heatmap.pdf"), width = 13, height = 6)
 print(p)
 dev.off()
@@ -140,6 +142,8 @@ p <- ggplot(df2, aes(x = cluster, y = Region, fill = per)) +
        x = "Integrated DLBCL Visium Seurat Clusters", y = "Pathology Annotation") + 
   guides(fill = guide_colorbar(title.position = "top", title.hjust = 0.5, 
                                barwidth = unit(23, "cm"), barheight = unit(0.5, "cm")))
+
+write.csv(df2, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS13c.csv")
 
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Visium_Integration_DLBCL_Annotation"
 pdf(file.path(figpath, "/DLBCL_Vis_Patho_Clus_Heatmap.pdf"), width = 15, height = 6.8)

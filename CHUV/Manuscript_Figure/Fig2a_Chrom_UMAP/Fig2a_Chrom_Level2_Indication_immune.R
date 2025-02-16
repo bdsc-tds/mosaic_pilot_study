@@ -47,7 +47,7 @@ names(color) <- chrom_dlbcl_palette$X1
 
 #########################################################################
 # -------------------------------------------------------------------------
-chrom_prev_brlu <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/final_owkin_annot.rds")
+chrom_prev_brlu <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/final_owkin_annot.rds")
 # breast / lung
 chrom_prev_brlu$level1_5_immune <- case_when(chrom_prev_brlu$annot_l1 == "B cells" ~ "B cells",   
                                              chrom_prev_brlu$annot_l1 %in% c("Fibro_muscle", "Endothelia") ~ "Stroma",
@@ -72,6 +72,12 @@ table(chrom_prev_brlu$level1_5_immune)
 Idents(chrom_prev_brlu) <- chrom_prev_brlu$level1_5_immune
 p <- DimPlot(chrom_prev_brlu, cols = color)
 
+red_df <- data.frame(chrom_prev_brlu@reductions$umap@cell.embeddings)
+red_df$celltype <- chrom_prev_brlu$level1_5_immune
+red_df$indication <- chrom_prev_brlu$tissue
+write.csv(red_df, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig2a_breast_lung.csv")
+
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig2"
 pdf(file.path(figpath, "/Chrom_UMAP_BrLu_level1_5_immune.pdf"), width = 9, height = 6)
 print(p)
@@ -94,15 +100,20 @@ dev.off()
 
 
 # -------------------------------------------------------------------------
-chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
+chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
 chrom_dlbcl <- readRDS(file.path(chrompath, "chrom_dlbcl.rds")) # 16066 39713
 chrom_dlbcl$level2_immune <- ifelse(as.character(chrom_dlbcl$level1_5_immune) == "Tumor", as.character(chrom_dlbcl$Level2), as.character(chrom_dlbcl$level1_5_immune))
 table(chrom_dlbcl$level2_immune)
 # B cells    Epithelia   Macrophage Myeloid else           NK       Stroma      T cells        Tu_D1        Tu_D2        Tu_D3        Tu_D4        Tu_D5        Tu_D6 
 #      77         2945         3075         1398          349         3388         3721         6319         5624         8641         2005         1019         1152 
 
-Idents(chrom_dlbcl) <- factor(chrom_dlbcl$level2_immune, levels = chrom_dlbcl_palette$X1)
+Idents(chrom_dlbcl) <- factor(chrom_dlbcl$level1_5_immune, levels = chrom_dlbcl_palette$X1)
 p <- DimPlot(chrom_dlbcl, cols = color)
+
+red_df <- data.frame(chrom_dlbcl@reductions$umap@cell.embeddings)
+red_df$celltype <- chrom_dlbcl$level1_5_immune
+write.csv(red_df, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig2a_dlbcl.csv")
 
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig2"
 pdf(file.path(figpath, "/Chrom_UMAP_DLBCL_level1_5_immune.pdf"), width = 9, height = 6)

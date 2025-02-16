@@ -3,12 +3,17 @@ library(patchwork)
 library(SpatialExperiment)
 
 disease = "breast"
-geopath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig1/Fig1d"
+geopath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig1/Fig1d"
 
 spe <- readRDS(file.path(geopath, paste0(disease, "_spe.rds")))
 spe_ruv <- readRDS(file.path(geopath, paste0(disease, "_spe_ruv.rds")))
 
+
+red_df <- as.data.frame(reducedDim(spe, "TSNE"))
+red_df$section = spe$section_id
+write.csv(red_df, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig1d_geo.csv")
 
 # TSNE --------------------------------------------------------------------
 plotGeoBreastFig1d <- function(spe, type = "TSNE", legend_pos = c(0.65, 0.3), 

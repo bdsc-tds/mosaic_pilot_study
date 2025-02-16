@@ -7,8 +7,8 @@ cell_fraction_order = c("Macrophage", "Malignant", "Other", "T cells", "PanCK-")
 cell_fraction_color = c("#9A32CD", "#BC8F8F", "#388E8E", "#4169E1", "#09D0EF")
 names(cell_fraction_color) <- cell_fraction_order
 
-final_spot <- read_xlsx("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Vis_Geo_Match/spot_aoi_matched.xlsx")
-mapped_all_spot <- read.csv(file.path("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Registration", "spot_mapped_cf_region.csv"))
+final_spot <- read_xlsx("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Vis_Geo_Match/spot_aoi_matched.xlsx")
+mapped_all_spot <- read.csv(file.path("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Registration", "spot_mapped_cf_region.csv"))
 mapped_all_spot <- mapped_all_spot %>%
   filter(cell_fraction != "PanCK-")
 
@@ -78,6 +78,14 @@ p_final <- p +
             aes(label = n, x = 0, y = ylabel, vjust = -1, hjust = -0.1),
             position = position_stack(),
             inherit.aes = FALSE)
+
+write.csv(final_spot, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig3b_density.csv")
+write.csv(sample_size_dfless70, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig3b_stats_less.csv")
+write.csv(sample_size_dfmore70, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig3b_stats_more.csv")
+
 
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig3"
 pdf(file.path(figpath, "ggRidge_Area.pdf"), width = 8, height = 5)

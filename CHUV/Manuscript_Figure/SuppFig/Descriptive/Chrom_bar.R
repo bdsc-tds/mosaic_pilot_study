@@ -1,22 +1,22 @@
 library(ggridges)
-chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
+chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
 # disease = "breast"; seu <- readRDS(file.path(chrompath, "chrom_breast.rds"))
 # disease = "lung"; seu <- readRDS(file.path(chrompath, "chrom_lung.rds"))
 disease = "dlbcl"; seu <- readRDS(file.path(chrompath, "chrom_dlbcl.rds"))
 
 if(disease == "breast"){
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/color_palette.R")
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/Owkin_Pilot/Code/color_palette.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
   CT_color <- breast_1_5ct_color
   CT_color <- breast_level4_cellcolors
 }else if(disease == "lung"){
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/color_palette.R")
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/Owkin_Pilot/Code/color_palette.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
   CT_color <- lung_1_5ct_color
   CT_color <- lung_level4_cellcolors
 }else{
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/color_palette.R")
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/Owkin_Pilot/Code/color_palette.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
   CT_color <- dlbcl_1_5ct_color
   CT_color <- dlbcl_level4_cellcolors
 }
@@ -43,6 +43,14 @@ plotBar_seu <- function(seu, decreasing = TRUE, ylabel = "Percentage", annotate 
   
   p
 }
+
+df_save <- data.frame(CT4 = seu$Harmonised_Level4,
+                 CT1_5 = seu$Level1,
+                 Barcode = colnames(seu)
+                 )
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS4_dlbcl.csv")     
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS4_breast.csv")  
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS4_lung.csv")  
 
 p <- plotBar_seu(seu, decreasing = TRUE, ylabel = "Percentage", annotate = "Harmonised_Level4")
 p <- plotBar_seu(seu, decreasing = TRUE, ylabel = "Percentage", annotate = "level1_5")

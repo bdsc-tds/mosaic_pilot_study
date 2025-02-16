@@ -23,6 +23,28 @@ sce$pxl_col_in_fullres <- NULL; sce$pxl_row_in_fullres <- NULL
 p <- plotSpots(sce, annotate = "spatial.cluster", text_by = "spatial.cluster", y_reverse = TRUE,
                pt.size = 0.5)
 
+
+# Source data -----------------------------------------------
+df_save <- data.frame(
+  reducedDim(vis, "UMAP"),
+  vis$spatial.cluster
+)
+write.csv(df_save, 
+          "~/Desktop/Owkin_Manuscript_Review/Re-submission/Re-submission2/SourceData_prep/Fig5b_dim.csv")
+
+
+df_save <- data.frame(
+  x = vis$array_col,
+  y = vis$array_row,
+  clus = vis$spatial.cluster,
+  decon = vis$Level4_decon_max,
+  patho = vis$Region
+)
+write.csv(df_save, 
+          "~/Desktop/Owkin_Manuscript_Review/Re-submission/Re-submission2/SourceData_prep/Fig5b_spatial.csv")
+
+
+# ----------------------------------------------------------
 plot_title = "Vis_B3_2_Spatial_clus.pdf"
 pdf(file = file.path(figpath, plot_title),
     width = 2,

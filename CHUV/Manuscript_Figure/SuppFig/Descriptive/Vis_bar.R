@@ -8,9 +8,22 @@ library(dplyr)
 # disease = "lung"
 disease = "dlbcl"
 # After spotclean -----------------------------------------------------
-datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean/Results")
+datapath.spotclean = paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium_integration_rep_owkin/Seurat5_SpCl1.4.1_final/", disease, "/spotclean/Results")
 save_rds_name = paste0("/", str_to_title(disease), "-merge-SCTpostSpotClean.rds")
 seu <- readRDS(paste0(datapath.spotclean, save_rds_name))
+
+plt_df <- as.data.frame(table(seu$Region)) %>%
+  dplyr::rename(Region = Var1,
+                count = Freq) %>%
+  mutate(per = count/sum(count)) 
+plt_df_dlbcl <- plt_df; plt_df_dlbcl$indication = "DLBCL"
+plt_df_breast <- plt_df; plt_df_breast$indication = "Breast"
+plt_df_lung <- plt_df; plt_df_lung$indication = "Lung"
+
+write.csv(rbind(plt_df_breast, 
+                plt_df_lung,
+                plt_df_dlbcl),
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS2c.csv")  
 
 
 source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/color_palette.R")

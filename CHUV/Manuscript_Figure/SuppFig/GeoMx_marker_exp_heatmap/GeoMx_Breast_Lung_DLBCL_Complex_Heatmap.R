@@ -23,14 +23,14 @@ disease = "dlbcl"
 # -------------------------------------------------------------------------
 # disease = "lung"
 
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/GeoMx/00_GeoMx_Paths.R")
-data_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/GeoMx/00_GeoMx_Paths.R")
+data_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
 spe <- readRDS(file.path(data_path, paste0(disease, "_spe_ruv.rds"))) # expression on normalized and batch corrected counts 
 
 if(class(assay(spe, "logcounts"))[1] != "dgCMatrix"){assay(spe, "logcounts") <- as(as.matrix(assay(spe, "logcounts")), "dgCMatrix")}
 
 set.seed(123)
-nn.clusters <- clusterCells(spe, use.dimred="PCA")
+nn.clusters <- scran::clusterCells(spe, use.dimred="PCA")
 table(nn.clusters)
 spe$cluster <- nn.clusters
 
@@ -61,6 +61,19 @@ exp_mat <- exp_mat_test[rownames(exp_mat_test) %in% top2000$gene, ]
 
 dim(exp_mat)
 
+df_save <- data.frame(
+  t(exp_mat),
+  # cluster = spe$cluster,
+  area = spe$area, 
+  nuclei = spe$nuclei, 
+  genes_detected = spe$genes_detected, 
+  pathology = spe$pathology, 
+  roi_type = spe$roi_type, 
+  patient_id = spe$patient_id, 
+  section_id = spe$section_id, 
+  cell_fraction = spe$cell_fraction)
+
+write.csv(df_save, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS5c.csv")
 
 # Brewer palettes ----------------------------------------------------------
 # Note: does not help to order the color, whatever...

@@ -2,11 +2,11 @@ library(stringr)
 library(Seurat)
 library(ggplot2)
 library(dplyr)
-library(SCpubr)
+# library(SCpubr)
 
-chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
-chrompath_br_lung <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/final_owkin_annot.rds"
-figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Chrom_Pt_Spec_Tumor_DotPlot"
+chrompath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon"
+chrompath_br_lung <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/final_owkin_annot.rds"
+figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/SuppFig/Chrom_Pt_Spec_Tumor_DotPlot"
 
 ## My order
 # tu_breast <- c(
@@ -30,19 +30,19 @@ figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Results/Manuscript
 #   "KRT17", "S100A2", "S100A9", "TRIM29"                                                 # Tu_L4
 # )
 
-# tu_breast <- c(
-#   "NAMPT", "FKBP5", "LTF", "STAC2", "ALOX15B", "ANKRD30A", "ALCAM", "FABP7", 
-#   "CYP4F8", "AZGP1", "CLU", "ALDH3B2", "FASN", "MGP", "ACSM1", "MUCL1", "APOD", 
-#   "GATA3", "EVL", "IER2", "NTN4", "ESR1", "SHROOM1", "KRT19", "MLPH", "RHOB"
-# )
-# 
-# tu_lung <- c(
-#   "WFDC2", "F3", "TCIM", "HOPX", "AKR1C3", "PCSK2", "CPS1", "AKR1C2", "SFTPB", "B2M", 
-#   "FTH1", "CD74", "DCBLD2", "LAMB3", "CAV2", "TGFBI", "MDK", "COL17A1", "G0S2", "FAM3C",
-#   "ITGA3", "GPRC5A", "PKHD1", "MYH14", "MSLN", "FXYD2", "ANXA4", "CD24", "MYO1D", 
-#   "DDX52", "MUC1", "SERPINB1", "FURIN", "FXYD3", "AQP3", "DSP", "GSTP1", "TRIM29",
-#   "S100A9", "S100A2", "KRT17"
-# )
+tu_breast <- c(
+  "NAMPT", "FKBP5", "LTF", "STAC2", "ALOX15B", "ANKRD30A", "ALCAM", "FABP7",
+  "CYP4F8", "AZGP1", "CLU", "ALDH3B2", "FASN", "MGP", "ACSM1", "MUCL1", "APOD",
+  "GATA3", "EVL", "IER2", "NTN4", "ESR1", "SHROOM1", "KRT19", "MLPH", "RHOB"
+)
+
+tu_lung <- c(
+  "WFDC2", "F3", "TCIM", "HOPX", "AKR1C3", "PCSK2", "CPS1", "AKR1C2", "SFTPB", "B2M",
+  "FTH1", "CD74", "DCBLD2", "LAMB3", "CAV2", "TGFBI", "MDK", "COL17A1", "G0S2", "FAM3C",
+  "ITGA3", "GPRC5A", "PKHD1", "MYH14", "MSLN", "FXYD2", "ANXA4", "CD24", "MYO1D",
+  "DDX52", "MUC1", "SERPINB1", "FURIN", "FXYD3", "AQP3", "DSP", "GSTP1", "TRIM29",
+  "S100A9", "S100A2", "KRT17"
+)
 
 tu_br_ind_markers_ <- read.csv("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/dbuszta/breast_tum_de_genes.csv")
 tu_br_ind_markers <- tu_br_ind_markers_ %>%
@@ -57,7 +57,7 @@ tu_lu_ind_markers <- tu_lu_ind_markers_ %>%
   slice_head(n = 50)
 
 # helper  -----------------------------------------------------------------
-plot_save_pt_spec_tumor_dotplot <- function(seu, genelist, 
+plot_save_pt_spec_tumor_dotplot <- function(seu, genelist #, 
                                             #savefig_width = 3.5, savefig_height = 8, 
                                             #save_title = "Breast_Chrom_DotPlot.pdf"
                                             ){
@@ -72,7 +72,7 @@ plot_save_pt_spec_tumor_dotplot <- function(seu, genelist,
   # seu <- ScaleData(seu)    # scale or not does not matter, but for dotplot, it takes log transformed data from the "data" slot of any assay
   
   p <- SCpubr::do_DotPlot(sample = seu, features = rev(genelist), 
-                          # assay = "RNA",
+                          assay = "RNA",
                           axis.text.x.angle = 0,
                           flip = TRUE, legend.position = "bottom"
   ) + 
@@ -101,14 +101,17 @@ seu <- seu[, seu$Harmonised_Level4 %in% c("Tu_B1_MUCL1", "Tu_B1_MUCL1_necrosis",
                                           "Tu_B1_MUCL1_transcription",
                                           "Tu_B3_CYP4F8", "Tu_B4_RHOB")]
 # Idents(seu) <- factor(seu$patient, levels = paste0("B", 1:4))
-Idents(seu) <- factor(seu$Harmonised_Level4)
+Idents(seu) <- factor(seu$Level2)
   
-p_breast <- plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_br_ind_markers$genes[281:325]# ,
+p_breast <- plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_breast# ,
                                 #savefig_width = 3.5, savefig_height = 8,
                                 # save_title = "breast_Chrom_DotPlot_RNA_lognorm_full.pdf"
                                 )
 
+df_breast <- as.data.frame(t(seu@assays$RNA@counts[tu_breast, ]))
+df_breast$tu_group <- seu$Level2
 
+write.csv(df_breast, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS4b_dot.csv")
 # -------------------------------------------------------------------------
 seu <- readRDS(file.path(chrompath, "chrom_lung.rds"))
 
@@ -122,15 +125,19 @@ seu <- seu[, seu$Harmonised_Level4 %in% c("Tu_L1_SFTPB", "Tu_L2_FXYD2", "Tu_L3_G
 
 # seu <- seu[rownames(seu) %in% tu_lung, ]
 # Idents(seu) <- factor(seu$patient, levels = paste0("L", 1:4))
-Idents(seu) <- factor(seu$Harmonised_Level4)
+Idents(seu) <- factor(seu$Level2)
 
 # plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_lung,
 #                                 # savefig_width = 3.5, savefig_height = 10.5,
 #                                 # save_title = "lung_Chrom_DotPlot_RNA_lognorm_full.pdf"
 #                                 )
 
-p_lung <- plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_lu_ind_markers$genes[351:373])
+p_lung <- plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_lung)
 
+df_lung <- as.data.frame(t(seu@assays$RNA@counts[tu_lung, ]))
+df_lung$tu_group <- seu$Level2
+
+write.csv(df_lung, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS4c_dot.csv")
 
 # Try annotating breast and lung together --------------------------------
 genes_selected <- c(tu_breast, tu_lung)
@@ -147,28 +154,34 @@ plot_save_pt_spec_tumor_dotplot(seu, genelist = genes_selected,
 # -------------------------------------------------------------------------
 tu_dlbcl <- c("NME2", "FCRL1", "LMO2", "IGKC", "MT-CO3", "TMSB4X", "GRHPR",
               "MPEG1", "CD1C", "CD52", "LTB", "SMIM14", "TNFRSF13C", "CD79A",
-              "CD22", "FCRL2", "FCRL5",                                    # D1 clus 2, 5, 13, 19:
+              "CD22", "FCRL5",                                    # D1 clus 2, 5, 13, 19:
               "MT-CYB", "NIBAN3", "SPIB", "MT-ATP6", "HIST1H1C", "IGHM",
-              "MT-ND4", "TCL1A", "MT-ND4L", "HIST1H1R",                    # D2 clus 0:
+              "MT-ND4", "TCL1A", "MT-ND4L",                     # D2 clus 0:
               "CD83", "SWAP70", "SEL1L3", "FCRL3", "ACTB", "IL4I1", "FAM3C",
-              "ACTG2", "CD74", "MS4A1", "MT-CYB", "CNN2", "LRMP", "LCP1",  # D3 clus 1, 6, 26:
+              "ACTG2", "CD74", "MS4A1", "CNN2", "LRMP", "LCP1",  # D3 clus 1, 6, 26:
               "GGA2", "HELLS", "RASGRP2", "NKX6-3", "DTX1", "BCL7A", "MAT2A",
               "ARGLU1", "ALOX5", "AKNA", "ARHGEF1", "PNN", "TMC8",         # D4 clus 9&22:
-              "TSPAN33", "SPATC1", "NFKB2", "BCL2L1", "OGI", "CCL17",
+              "TSPAN33", "SPATC1", "NFKB2", "BCL2L1", "CCL17",
               "CD40", "DUSP2", "ITPKB", "CCL22",                           # D5 clus 17:
               "POU2F2", "CCDC88A", "LENG8", "KLHL6", "TNFRSF13B", "BCL2",
-              "NFATC1", "MT-ND6", "NIBAN3", "FCRL2"                        # D6 clus 12:
+              "NFATC1", "MT-ND6", "FCRL2"                        # D6 clus 12:
 )
 
+
 seu <- readRDS(file.path(chrompath, "chrom_dlbcl.rds"))
-seu$patient <- paste0(substr(seu$sample_id, 1, 1), substr(seu$sample_id, 7, 7))
-Idents(seu) <- factor(seu$patient, levels = paste0("D", 1:6))
+seu <- seu[, grepl("Tu_D", seu$Level2)]
+Idents(seu) <- factor(seu$Level2)
 
-p <- plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_dlbcl,
-                                savefig_width = 5, savefig_height = 17,
-                                save_title = "dlbcl_Chrom_DotPlot_RNA_lognorm_full.pdf")
+p <- plot_save_pt_spec_tumor_dotplot(seu, genelist = tu_dlbcl
+                                #      ,
+                                # savefig_width = 5, savefig_height = 17,
+                                # save_title = "dlbcl_Chrom_DotPlot_RNA_lognorm_full.pdf"
+                                )
 
+df_dlbcl <- as.data.frame(t(seu@assays$RNA@counts[tu_dlbcl, ]))
+df_dlbcl$tu_group <- seu$Level2
 
+write.csv(df_dlbcl, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS4d_dot.csv")
 
 
 

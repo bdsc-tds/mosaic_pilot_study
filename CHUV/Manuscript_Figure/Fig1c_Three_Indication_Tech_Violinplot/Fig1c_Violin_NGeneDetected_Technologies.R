@@ -4,7 +4,7 @@ library(patchwork)
 scaleFUN <- function(x) sprintf("%.0f", x) # have no decimal on x-axis
 
 ## GeoMx
-read_path <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_test_norm/"
+read_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/archive/GeoMx_test_norm/"
 
 plt_df_per_indication <- function(disease){
   spe <- readRDS(file.path(read_path, paste0(disease, ".rds")))
@@ -23,7 +23,8 @@ plt_df_geo_breast <- plt_df_per_indication(disease = "breast")
 plt_df_geo_lung <- plt_df_per_indication(disease = "lung")
 plt_df_geo_dlbcl <- plt_df_per_indication(disease = "dlbcl")
 
-
+write.csv(rbind(plt_df_geo_breast, plt_df_geo_lung, plt_df_geo_dlbcl), 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig1c_geo.csv")
 plot_violin_per_indication_geo <- function(plt_df = plt_df_geo_dlbcl, 
                                            section_order = c("D1", "D2", "D3", "D4", "D5", "D6"), 
                                            cell_fraction_order = c("B cells", "Macro", "Other", "T cells"),
@@ -126,8 +127,8 @@ dev.off()
 ## Visium ------------------------------------------------------------------------------------------------------------------------
 plt_df_per_indication <- function(disease){
   foldername <- ifelse(disease == "dlbcl", "DLBCL", str_to_title(disease))
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/Owkin_Pilot/Code/Visium/Manuscript/01_params.R")
-  save_bs_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/Visium/01_params.R")
+  save_bs_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
   plt_df <- NULL
   for(i in 1:nsamples){
     sce <- readRDS(file.path(save_bs_path, paste0(save_names[i], "_qcd.rds")))
@@ -146,6 +147,9 @@ plt_df_vis_breast <- plt_df_per_indication(disease = "breast")
 plt_df_vis_lung <- plt_df_per_indication(disease = "lung")
 plt_df_vis_dlbcl <- plt_df_per_indication(disease = "dlbcl")
 plt_df_vis_dlbcl$section <- paste0("D", substr(plt_df_vis_dlbcl$section, 7, 7))
+
+write.csv(rbind(plt_df_vis_breast, plt_df_vis_lung, plt_df_vis_dlbcl), 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig1c_vis.csv")
 
 plot_violin_per_indication <- function(plt_df, 
                                        section_order, 
@@ -215,9 +219,9 @@ dev.off()
 
 
 ## Chromium ------------------------------------------------------------------------------------------------------------------------
-chrom_breast <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon/chrom_breast.rds")
-chrom_lung <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon/chrom_lung.rds")
-chrom_dlbcl <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Data/Chromium/DLBCL/dlbcl_final_owkin_annot_pub.rds")
+chrom_breast <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon/chrom_breast.rds")
+chrom_lung <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/Breast_Lung/For_manuscript_decon/chrom_lung.rds")
+chrom_dlbcl <- readRDS("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Chromium/DLBCL/dlbcl_final_owkin_annot_pub.rds")
 chrom_dlbcl$sample_id <- paste0("D", substr(chrom_dlbcl$sample_id, 7, 7))
 
 plot_violin_per_indication <- function(obj = chrom_breast, 
@@ -269,6 +273,9 @@ plot_violin_per_indication <- function(obj = chrom_breast,
 
   p
 }
+
+write.csv(rbind(plt_df_breast, plt_df_lung, plt_df_dlbcl), 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig1c_chrom.csv")
 
 chrom_plot <- (plot_violin_per_indication(chrom_breast, c("B1", "B2", "B3", "B3_rep", "B4", "B4_rep"), "Breast", 
                                           strip_color = "#00c78cff",

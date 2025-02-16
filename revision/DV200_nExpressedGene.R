@@ -7,7 +7,7 @@ dv200_blockage$Histology <- factor(dv200_blockage$Histology,
 dv200_blockage$Sampling_Type <- factor(dv200_blockage$Sampling_Type, 
                                    levels=c("Resection", "Biopsy"))
 
-
+write.csv(dv200_blockage, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig1b.csv")
 library(ggplot2)
 ggplot(dv200_blockage, aes(x=Block_age_month, y=DV200, shape=Sampling_Type, color=Histology, label=IDCHUV)) + 
   geom_point(size=6) +
@@ -29,7 +29,7 @@ library(patchwork)
 
 ###########################################################################
 ## GeoMx
-read_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_test_norm/"
+read_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/archive/GeoMx_test_norm/"
 
 plt_df_per_indication <- function(disease){
   spe <- readRDS(file.path(read_path, paste0(disease, ".rds")))
@@ -81,7 +81,7 @@ p <- ggplot(df_, aes(x=DV200, y=ngenedetected)) +
                            box.padding = 0.5) +  
   theme_minimal()
 
-
+write.csv(df_, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFig1de.csv")
 plot_width = 15
 plot_height = 8
 fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/DV200"
@@ -172,7 +172,7 @@ dev.off()
 ## Visium
 plt_df_per_indication <- function(disease){
   foldername <- ifelse(disease == "dlbcl", "DLBCL", str_to_title(disease))
-  source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/Visium/01_params.R")
+  source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/Visium/01_params.R")
   save_bs_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/Visium_qcd/", disease, "_qcd")
   plt_df <- NULL
   for(i in 1:nsamples){
@@ -216,7 +216,7 @@ names(df_)[names(df_) == "patho"] <- "Pathology label"
 #   sort(x)[5] + 1000
 # }
 
-source("/work/PRTNR/CHUV/DIR/rgottar1/spatial/env/ydong/mosaic_pilot_study/CHUV/color_palette.R")
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/color_palette.R")
 plt_df <- df_
 n_jitters <- 150 # Each sample contributes 100 jitters
 # Subsample a portion of the data for jittering
@@ -236,6 +236,7 @@ if(any(table(plt_df$section) < n_jitters)){
     sample_n(size = n_jitters, replace = FALSE) %>% arrange(section)
 }
 
+write.csv(df_, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFig1bc.csv")
 p <- ggplot(df_, aes(x=DV200, y=ngenedetected)) + 
   geom_jitter(data = sampled_data, aes(shape=Histology), size=1, width = 0.2, alpha = 0.7) + # , color=`Pathology label`
   geom_boxplot(aes(fill=IDCHUV), alpha = 0.5, width=0.5, show.legend = FALSE, outlier.shape = NA) + 

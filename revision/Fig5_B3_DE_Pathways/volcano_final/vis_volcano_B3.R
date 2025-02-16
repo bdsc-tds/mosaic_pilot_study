@@ -87,6 +87,8 @@ plot_volcano <- function(results, legendpos = "none"){
 # [1]   5.570993 118.139393
 
 p <- plot_volcano(results, legendpos = "none")
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig5d.csv")
+
 figpath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig5_Geo_B3/Volcano_final"
 plot_title = "Vis_B3.pdf"
 pdf(file = file.path(figpath, plot_title),

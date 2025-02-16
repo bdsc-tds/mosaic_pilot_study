@@ -1,4 +1,4 @@
-geopath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched"
+geopath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched"
 
 disease = "breast"
 disease = "lung"
@@ -52,6 +52,7 @@ br_lu <- rbind(br %>% mutate(Indication = "Breast"),
 br_lu$CT <- as.factor(br_lu$CT)
 br_lu <- br_lu %>% mutate(cf = ifelse(cf == "Macro", "Macrophage", cf))
 
+write.csv(br_lu, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS5a.csv") 
 
 bp <- ggplot(br_lu, aes(x=cf, y=normexp)) + 
   geom_violin(trim=TRUE, alpha = 0.5) + 
@@ -78,6 +79,7 @@ dev.off()
 # DLBCL -------------------------------------------------------------------
 dlbcl <- get_plt_df(disease = "dlbcl") %>% mutate(cf = ifelse(cf == "Macro", "Macrophage", cf))
 
+write.csv(dlbcl, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS5b.csv") 
 
 # Box with jitter ---------------------------------------------------------
 bp <- ggplot(dlbcl, aes(x=cf, y=normexp)) + 

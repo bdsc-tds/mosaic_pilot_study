@@ -39,7 +39,7 @@ disease_list <- c("breast", "lung", "dlbcl")
 
 for(disease in disease_list){
   ## Geo
-  datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
+  datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/"
   spe_ruv <- readRDS(file.path(datapath, paste0(disease, "_spe_ruv.rds")))
 
   plt_df <- as.data.frame(table(spe_ruv$cell_fraction)) %>%
@@ -63,9 +63,19 @@ for(disease in disease_list){
 
   assign(paste0("plt_df_", disease), plt_df)
   
-  p <- plot_bar_each_indication(plt_df)
-  assign(paste0("p_", disease), p)
+  # p <- plot_bar_each_indication(plt_df)
+  # assign(paste0("p_", disease), p)
 }
+
+plt_df_breast$indication = "Breast" 
+plt_df_lung$indication = "Lung"
+plt_df_dlbcl$indication = "DLBCL"
+
+write.csv(rbind(plt_df_breast, 
+                plt_df_lung,
+                plt_df_dlbcl),
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS2e.csv")     
+
 
 p_breast | p_lung | p_dlbcl
 

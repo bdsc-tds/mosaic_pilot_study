@@ -54,6 +54,7 @@ p <- ggplot(results,
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 20))
 
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS9f.csv")
 
 # plot_title = "Chrom_B3_DE_Volcano_NPPC_PLA2G2A.pdf"
 # pdf(file = file.path("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Results/Manuscript_Figures_Final/Fig5/B3", plot_title),

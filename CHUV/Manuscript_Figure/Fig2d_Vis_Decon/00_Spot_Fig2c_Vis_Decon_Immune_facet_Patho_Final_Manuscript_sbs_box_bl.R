@@ -115,6 +115,8 @@ p_breast_lung <- (p1 + theme(plot.margin = unit(c(0,20,0,10), "pt"))) |
   (p4 + theme(plot.margin = unit(c(0, 10 ,0,0), "pt"))) 
 p_breast_lung
 
+write.csv(decon_patho_gather_breast_lung_subset, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig2c_vis_breast_lung.csv")
 
 # DLBCL -------------------------------------------------------------------
 decon_patho_gather_dlbcl <- read.csv(file.path(vis_decon_path, "vis_dlbcl_decon_immune_long.csv"))
@@ -168,6 +170,9 @@ p_dlbcl <- (p5 + theme(plot.margin = unit(c(10,20,0,10), "pt"))) |
   (p7 + theme(plot.margin = unit(c(10,20,0,0), "pt"))) | 
   (p8 + theme(plot.margin = unit(c(10, 10 ,0,0), "pt"))) 
 p_dlbcl
+
+write.csv(decon_patho_gather_dlbcl_subset, 
+          "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig2c_vis_dlbcl.csv")
 
 p_vis_decon <- p_breast_lung / 
   p_dlbcl 

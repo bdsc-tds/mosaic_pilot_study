@@ -1,5 +1,5 @@
 ## Library
-source("/work/PRTNR/CHUV/DIR/rgottar1/owkin/env/ydong/mosaic_pilot_study/CHUV/Visium/00_init.R")
+source("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/env/ydong/mosaic_pilot_study/CHUV/Visium/00_init.R")
 
 ## Parameters
 save_path <- paste0("/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Data/Visium/", disease, "_raw/SPE/")

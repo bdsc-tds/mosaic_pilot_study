@@ -13,9 +13,9 @@ datapath <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/
 geo_spe <- readRDS(file.path(datapath, "dlbcl_spe_ruv.rds"))
 geo <- as.Seurat(geo_spe)
 
-geo <- readRDS("dlbcl_seu_ruv.rds")
+# geo <- readRDS("dlbcl_seu_ruv.rds")
 # head(Idents(geo)) # Levels: T cells Macrophage Other Tu_D1 Tu_D2 Tu_D3 Tu_D4 Tu_D5 Tu_D6
-
+Idents(geo) <- geo$clusters
 geo <- geo[rownames(geo) %in% DLBCLnChromium_Marker_Gene_List, ]
 
 DLBCLnChromium_Marker_Gene_List <- c(
@@ -168,6 +168,8 @@ p <- ggplot(test_, aes(x = Fraction, y = cell_fraction_pt, fill = cell_fraction_
   scale_fill_manual(values = palette_ridge) + 
   ylab("AOI label")
 
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15c.csv")
+
 sample_size_df <- data.frame(table(test_$cell_fraction_pt)) %>%
   dplyr::rename(n = Freq,
          ylabel = Var1) %>%
@@ -216,6 +218,8 @@ p <- ggplot(test, aes(x = Fraction, y = decon_max_val_names_consensus_pt, fill =
   scale_fill_manual(values = palette_ridge) + 
   ylab("Consensus label by AOI & Deconvolution majority vote")
 
+write.csv(p$data, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/SuppFigS15d.csv")
+
 sample_size_df <- data.frame(table(test$decon_max_val_names_consensus_pt)) %>%
   dplyr::rename(n = Freq,
          ylabel = Var1) %>%
@@ -235,7 +239,7 @@ dev.off()
 
 
 geo$consensus <- geo$sample_id2 %in% test$sample
-saveRDS(geo, "/work/PRTNR/CHUV/DIR/rgottar1/spatial/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/dlbcl_seu_ruv.rds")
+saveRDS(geo, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Owkin_Pilot_Intermediate/GeoMx/GeoMx_Normed_Batched/dlbcl_seu_ruv.rds")
 
 #################################################################
 DLBCLnChromium_Marker_Gene_List <- c(

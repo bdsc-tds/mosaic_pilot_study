@@ -128,6 +128,9 @@ p_lung_patho_decon <- plotHeatmap(decon_patho_gather_lung_subset)
 PA_order <- c("Tumor-enriched", "Lymphocytes-enriched", "Epithelium", "Stroma-enriched") 
 p_dlbcl_patho_decon <- plotHeatmap(decon_patho_gather_dlbcl_subset)
 
+df_Fig4e <- rbind(decon_patho_gather_breast_subset, decon_patho_gather_lung_subset, decon_patho_gather_dlbcl_subset)
+write.csv(df_Fig4e, "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/SourceData/Fig4e_patho_decon_vis.csv")
+
 vis_heatmap <- p_breast_patho_decon | p_lung_patho_decon | p_dlbcl_patho_decon
 
 fig_path <- "/work/PRTNR/CHUV/DIR/rgottar1/owkin_pilot/Manuscript_revision/Fig4_Geo_Vis_Heatmap"
